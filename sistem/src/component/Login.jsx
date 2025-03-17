@@ -23,6 +23,8 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault(); // Prevent page refresh
 
+    console.log('🔍 Supabase Connection:', supabase)
+
     try {
       // 🔍 Step 1: Check if user exists
       const { data: user, error: userError } = await supabase
