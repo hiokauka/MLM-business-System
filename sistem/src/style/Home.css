@@ -1,0 +1,185 @@
+
+.header {
+  background-color: white;
+  padding: 5px 10px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap; /* Allows items to move to the next line on small screens */
+  overflow: hidden; /* Prevents content overflow */
+  position: fixed; /* Fix header at the top */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000; /* Ensures the header stays above other content */
+}
+
+.logo {
+  height: 100%; /* Make the logo match the header height */
+  width: auto; /* Keep the aspect ratio */
+}
+
+.navbar {
+  flex-grow: 1; /* Allows navbar to take remaining space */
+  display: flex;
+  justify-content: space-evenly; /* Spread out navigation links evenly */
+  align-items: center;
+}
+
+.navbar ul {
+  list-style-type: none;
+  display: flex; /* Make the list horizontal */
+  gap: 150px; /* Space between links */
+  padding: 0;
+  margin: 0;
+}
+
+.navbar a {
+  color: black;
+  text-decoration: none;
+  padding: 15px 20px;
+  display: block;
+  text-align: center;
+  font-size: 18px; /* Adjust text size */
+}
+
+.navbar a:hover {
+  transform: scale(1.2); /* Increase size by 20% */
+  transition: transform 0.3s ease-in-out; /* Smooth animation */
+}
+
+.navbar a.active {
+  font-weight: bold;
+  color: blue; /* Highlight active page */
+  border-bottom: 2px solid blue; /* Optional underline effect */
+}
+
+.logout-btn {
+   /* Button color */
+  border: none;
+  padding: 10px;
+  border-radius: 50%; /* Makes it a circle */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  
+}
+
+.logout-btn:hover {
+ 
+  transform: scale(1.2); /* Increase size by 20% */
+  transition: transform 0.3s ease-in-out; /* Smooth animation */
+}
+
+.logout-icon {
+  font-size: 24px;
+  color: red; /* Icon color */
+}
+
+.info-card {
+
+  
+  width: 80%;
+  max-width: 600px;
+  background-color: #23204f;
+  color: white;
+  margin: 20px auto;
+  padding: 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: 0.3s ease-in-out;
+
+}
+
+.hero-card{
+  width: 80%;
+  max-width: 600px;
+  background-color: #23204f;
+  color: white;
+  max-height: auto;
+  margin: 20px auto;
+  padding: 20px 30px;
+  border-radius: 15px;
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.1);
+  text-align: center;
+  transition: 0.3s ease-in-out;
+}
+
+.hero-card:hover, .info-card:hover {
+  transform: translateY(-5px);
+}
+
+/* Hero Content */
+.hero-content h1 {
+  font-size: 2rem;
+  margin-top: -150px;
+  margin-bottom: 1px;
+  color: white;
+  line-height: 1;
+}
+
+.hero-content p {
+  font-size: 1.1rem;
+  color: white;
+  margin-top: -150px; 
+}
+
+/* Main Section */
+.info-card h2 {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: white;
+}
+
+.info-card p {
+  font-size: 1.1rem;
+  color: white;
+}
+
+.ubat-image {
+  width: 200px;
+  height: 200px; 
+  margin: 20px auto; /* Centerkan */
+  display: block; /* Bagi dia duduk tengah */
+  border-radius: 10px; /* Bagi rounded sikit */
+}
+
+@media (max-width: 768px) {
+  .navbar {
+    display: none; /* Hide navbar for mobile */
+  }
+
+  .header {
+    position: relative;
+  }
+
+  /* Hamburger Menu for small screens */
+  .MuiSvgIcon-root {
+    display: block !important; /* Show hamburger menu icon */
+  }
+
+  .MuiDrawer-paper {
+    width: 250px; /* Drawer width */
+    background-color: white;
+    box-shadow: 2px 0px 5px rgba(0, 0, 0, 0.1); /* Optional shadow for the drawer */
+  }
+
+  .MuiDrawer-paperAnchorLeft {
+    top: 80px; /* Ensure the drawer starts below the header */
+    height: calc(100% - 80px); /* Fill the screen height excluding the header */
+  }
+
+  .hamburger {
+    margin-right: 30px; /* Move more to the left on phone */
+  }}
+
+
+
+@media (min-width: 769px) {
+  .MuiSvgIcon-root {
+    display: none; /* Hide hamburger menu on larger screens */
+  }
+}

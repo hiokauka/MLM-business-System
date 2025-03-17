@@ -1,0 +1,149 @@
+.header {
+  background-color: white;
+  padding: 5px 10px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  /* Allows items to move to the next line on small screens */
+  overflow: hidden;
+  /* Prevents content overflow */
+  position: fixed;
+  /* Fix header at the top */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  /* Ensures the header stays above other content */
+}
+
+.logo {
+  height: 100%;
+  /* Make the logo match the header height */
+  width: auto;
+  /* Keep the aspect ratio */
+}
+
+.navbar {
+  flex-grow: 1;
+  /* Allows navbar to take remaining space */
+  display: flex;
+  justify-content: space-evenly;
+  /* Spread out navigation links evenly */
+  align-items: center;
+}
+
+.navbar ul {
+  list-style-type: none;
+  display: flex;
+  /* Make the list horizontal */
+  gap: 150px;
+  /* Space between links */
+  padding: 0;
+  margin: 0;
+}
+
+.navbar a {
+  color: black;
+  text-decoration: none;
+  padding: 15px 20px;
+  display: block;
+  text-align: center;
+  font-size: 18px;
+  /* Adjust text size */
+}
+
+.navbar a:hover {
+  transform: scale(1.2);
+  /* Increase size by 20% */
+  transition: transform 0.3s ease-in-out;
+  /* Smooth animation */
+}
+
+.navbar a.active {
+  font-weight: bold;
+  color: blue;
+  /* Highlight active page */
+  border-bottom: 2px solid blue;
+  /* Optional underline effect */
+}
+
+.container-display {
+  display: flex;
+  flex-direction: column;
+  /* Stack children (h2 & button) vertically */
+  margin-left: 50px;
+  margin-top: 30px;
+}
+
+.container-display h2 {
+  border: 3px solid black;
+  font-size: 50px;
+  width: 30%;
+  text-align: center;
+  margin: 0;
+  /* Reset default margin */
+  min-height: 70px;
+}
+
+.container-display button {
+  width: 20%;
+  margin-top: 20px;
+  /* Add space between h2 and button */
+}
+
+.jana-table-container {
+
+  background-color: #8b82a3;
+  padding: 10px;
+  color: white;
+  border-radius: 10px;
+  text-align: center;
+  width: 85%;
+  margin-left: 50px;
+  margin-bottom: 10px;
+  /* Push it down from the header */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+
+}
+.jana-table-container .table-wrapper1 {
+  max-height: 400px; /* Set the max height for scrolling */
+  overflow-y: auto; /* Enable vertical scrolling */
+  overflow-x: auto; /* Enable horizontal scrolling if needed */
+  display: block; /* Ensure it behaves as a block for scrolling */
+}
+
+
+.jana-table-container table {
+  overflow-x: auto;
+  max-height: 200px;
+  /* Adjust height */
+  overflow-y: auto;
+  /* Enable vertical scrolling */
+}
+
+.jana-filters {
+  display: flex;
+  gap: 10px;
+  margin-top: 10px;
+  margin-left: -50px;
+  
+}
+
+.jana-filters input{
+  padding: 8px;
+  width: 50%;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-left: 100px;
+  
+}
+
+
+@media (max-width: 768px) {
+  .hamburger {
+    margin-right: 30px; /* Move more to the left on phone */
+  }
+}

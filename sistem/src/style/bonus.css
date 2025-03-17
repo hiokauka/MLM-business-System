@@ -1,0 +1,185 @@
+.header {
+  background-color: white;
+  padding: 5px 10px;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  /* Allows items to move to the next line on small screens */
+  overflow: hidden;
+  /* Prevents content overflow */
+  position: fixed;
+  /* Fix header at the top */
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  /* Ensures the header stays above other content */
+}
+
+.logo {
+  height: 100%;
+  /* Make the logo match the header height */
+  width: auto;
+  /* Keep the aspect ratio */
+}
+
+.navbar {
+  flex-grow: 1;
+  /* Allows navbar to take remaining space */
+  display: flex;
+  justify-content: space-evenly;
+  /* Spread out navigation links evenly */
+  align-items: center;
+}
+
+.navbar ul {
+  list-style-type: none;
+  display: flex;
+  /* Make the list horizontal */
+  gap: 150px;
+  /* Space between links */
+  padding: 0;
+  margin: 0;
+}
+
+.navbar a {
+  color: black;
+  text-decoration: none;
+  padding: 15px 20px;
+  display: block;
+  text-align: center;
+  font-size: 18px;
+  /* Adjust text size */
+}
+
+.navbar a:hover {
+  transform: scale(1.2);
+  /* Increase size by 20% */
+  transition: transform 0.3s ease-in-out;
+  /* Smooth animation */
+}
+
+.navbar a.active {
+  font-weight: bold;
+  color: blue;
+  /* Highlight active page */
+  border-bottom: 2px solid blue;
+  /* Optional underline effect */
+}
+
+.container {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  /* Align items vertically */
+  gap: 20px;
+  /* Space between bonuscard and button */
+  margin: 50px 50px;
+  /* Adjust spacing */
+}
+
+.tfcard {
+  background-color: #8b82a3;
+  padding: 10px ;
+  color: white;
+  border-radius: 10px;
+  text-align: center;
+  width: 85%;
+  margin-left: 100px;
+  margin-bottom: 10px;
+  /* Push it down from the header */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+  
+
+}
+
+.tablecontainer{
+  overflow-x: auto;
+  max-height: 400px; /* Adjust height */
+  overflow-y: auto;  /* Enable vertical scrolling */
+}
+.container{
+  margin-bottom: 10px;
+  margin-top: 10px;
+}
+
+table , th, td{
+  border: 1px solid black;
+  border-collapse: collapse;
+  width: 100%;
+}
+
+table {
+  
+  background-color: white;
+  color: #23204f;
+
+}
+
+th, td {
+  padding: 15px;
+
+}
+
+.filters {
+  display: flex;
+  gap: 10px;
+  
+  
+}
+
+.filters select {
+  padding: 8px;
+  height: 50%;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+}
+
+.filters input{
+  padding: 8px;
+  width: 50%;
+  font-size: 16px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  margin-left: 100px;
+}
+
+.bonuscard {
+  background-color: #23204f;
+  padding: 20px;
+  color: white;
+  border-radius: 10px;
+  text-align: center;
+  width: 50%;
+  margin-left: 50px;
+  /* Push it down from the header */
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/*.bonuscard:hover {
+  background-color: #3a3573;
+  transform: scale(1.05);
+  
+}*/
+
+
+
+.withdraw-container input {
+
+  width: 100%;
+
+}
+
+.withdraw-button {
+
+  width: 100%;
+}
+
+@media (max-width: 768px) {
+  .hamburger {
+    margin-right: 30px; /* Move more to the left on phone */
+  }
+}

@@ -1,0 +1,46 @@
+.Main {
+  margin-top: -100px;
+}
+
+
+.admin-btn {
+    background-color: #270a49;
+    color: white;
+    height: auto;
+    width: auto;
+    padding: 20px 40px; /* Add padding for better button sizing */
+    font-size: 20px;
+    margin: 0px; /* Add margin for spacing */
+  }
+  
+  .user-btn {
+    background-color: #270a49;
+    color: white;
+    height: auto;
+    width: auto;
+    padding: 20px 40px; /* Add padding for better button sizing */
+    font-size: 20px;
+    margin: 0px; /* Add margin for spacing */
+  }
+  
+  .btn:hover {
+    opacity: 0.8;
+  }
+  
+  h1 {
+    font-size: 64px; /* Increase size */
+    margin-bottom: -190px; /* Reduce space below the title */
+    text-align: center; /* Center text */
+    display: flex;
+    justify-content: center; /* Center horizontally */
+    align-items: center; /* Center vertically if needed */
+    height: 450px; /* Adjust height if necessary */
+  }
+  
+  .button-container {
+    gap: 30px; /* Space between buttons */
+    display: flex;
+    justify-content: center; /* Center buttons horizontally */
+    align-items: center; /* Center buttons vertically */
+    margin-top: 20px; /* Add margin to separate from the title */
+  }

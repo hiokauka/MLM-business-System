@@ -1,0 +1,91 @@
+
+.header {
+    background-color: white;
+    padding: 5px 10px;
+    height: 80px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap; /* Allows items to move to the next line on small screens */
+    overflow: hidden; /* Prevents content overflow */
+    position: fixed; /* Fix header at the top */
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000; /* Ensures the header stays above other content */
+  }
+  
+  .logo {
+    height: 100%; /* Make the logo match the header height */
+    width: auto; /* Keep the aspect ratio */
+  }
+  
+  .navbar {
+    flex-grow: 1; /* Allows navbar to take remaining space */
+    display: flex;
+    justify-content: space-evenly; /* Spread out navigation links evenly */
+    align-items: center;
+  }
+  
+  .navbar ul {
+    list-style-type: none;
+    display: flex; /* Make the list horizontal */
+    gap: 150px; /* Space between links */
+    padding: 0;
+    margin: 0;
+  }
+  
+  .navbar a {
+    color: black;
+    text-decoration: none;
+    padding: 15px 20px;
+    display: block;
+    text-align: center;
+    font-size: 18px; /* Adjust text size */
+  }
+  
+  .navbar a:hover {
+    transform: scale(1.2); /* Increase size by 20% */
+    transition: transform 0.3s ease-in-out; /* Smooth animation */
+  }
+  
+  .navbar a.active {
+    font-weight: bold;
+    color: blue; /* Highlight active page */
+    border-bottom: 2px solid blue; /* Optional underline effect */
+  }
+  
+  .contact_phone, .contact_email, .contact_alamat {
+    background-color: #16034a;
+    padding: 5px 10px; /* Reduced padding */
+    color: white;
+    border-radius: 5px; /* Smaller border radius */
+    text-align: center;
+    width:70%;
+    height: 70%;
+    margin-left: 200px;
+    margin-bottom: 10px;
+    box-shadow: 0px 2px 5px rgba(0, 0, 0, 0.05); /* Softer shadow */
+    font-size: 50px; /* Slightly smaller text */
+
+    overflow: hidden; 
+    white-space: normal; /* Allow text to wrap */
+    word-wrap: break-word; /* Break long words */
+   
+  }
+
+  @media (max-width: 768px) {
+    .contact_phone, .contact_email, .contact_alamat {
+      width: 90%; /* Smaller width on phone */
+      margin-left: auto; /* Center horizontally */
+      margin-right: auto; 
+      font-size: 12px; /* Smaller font size */
+      padding: 8px 5px;
+    }
+    
+    .hamburger {
+      margin-right: 30px; /* Move more to the left on phone */
+    }
+  
+  }
+  
