@@ -1,25 +1,10 @@
 {
-    "builds": [
-      {
-        "src": "sistem/vite.config.js",
-        "use": "@vercel/static-build",
-        "config": {
-          "distDir": "sistem/dist"
-        }
-      }
-    ],
-    "routes": [
-      {
-        "src": "/(.*)",
-        "dest": "/index.html"
-      }
-    ],
-    "cleanUrls": true,
-    "rewrites": [
-      {
-        "source": "/(.*)",
-        "destination": "/"
-      }
-    ]
-  }
-  
+  "routes": [
+    {
+      "src": "/.*",
+      "dest": "/index.html"
+    }
+  ],
+  "ignoreBuildStep": false,
+  "cleanUrls": true
+}
