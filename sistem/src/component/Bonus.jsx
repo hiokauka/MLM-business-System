@@ -65,6 +65,14 @@ function Bonus() {
             window.alert("Sila masukkan jumlah pengeluaran yang sah!");
             return;
         }
+
+        const withdrawAmountNum = parseFloat(withdrawAmount);
+
+        // ✅ Minimum withdrawal amount check
+        if (withdrawAmountNum < 50) {
+            window.alert("Jumlah pengeluaran minimum adalah RM50!");
+            return;
+        }
     
         // Fetch user details from the "users" table
         const { data: userData, error: userError } = await supabase
@@ -79,8 +87,7 @@ function Bonus() {
             return;
         }
     
-        // Validate withdrawal amount again
-        const withdrawAmountNum = parseFloat(withdrawAmount);
+       
         if (withdrawAmountNum > userData.total_bonus) {
             window.alert("Jumlah pengeluaran melebihi baki bonus anda!");
             return;
