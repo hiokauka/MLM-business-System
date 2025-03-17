@@ -101,6 +101,14 @@ function SignUpPage() {
       // ✅ Update PIN status to 'used'
       await supabase.from("pins").update({ status: "used" }).eq("pin", formData.pin);
 
+      
+
+      // ✅ Update PIN with the user's phone number
+      await supabase
+        .from("pins")
+        .update({ phone: formData.phone })
+        .eq("pin", formData.pin);
+
       alert("Pendaftaran berjaya!");
       navigate("/login");
     } catch (error) {
