@@ -124,6 +124,7 @@ function Jana() {
                 <th>Nombor Pin</th>
                 <th>Nombor berdaftar</th>
                 <th>Tarikh berdaftar</th>
+                <th>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -133,6 +134,7 @@ function Jana() {
                     <td>{pin.pin}</td>
                     <td>{pin.phone}</td>
                     <td>{new Date(pin.created_at).toLocaleDateString("en-GB")}</td>
+                    <td>{pin.status}</td>
                   </tr>
                 ))
               ) : (
