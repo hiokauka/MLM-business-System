@@ -71,7 +71,7 @@ function SignUpPage() {
         const { data: referrer } = await supabase
           .from("users")
           .select("id")
-          .eq("referral_pin", formData.referral)
+          .eq("pin", formData.referral)
           .single();
 
         if (!referrer) {
