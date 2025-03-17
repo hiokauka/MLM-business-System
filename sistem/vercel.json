@@ -5,6 +5,5 @@
       "dest": "/index.html"
     }
   ],
-  "ignoreBuildStep": false,
   "cleanUrls": true
 }
