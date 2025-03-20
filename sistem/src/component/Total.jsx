@@ -34,7 +34,7 @@ function Total() {
         const fetchUsers = async () => {
             const { data, error } = await supabase
                 .from("users")
-                .select("name, pin, phone, bank_account, bank_name, total_bonus, alamat, ic");
+                .select("name,username, pin, phone, bank_account, bank_name, total_bonus, alamat, ic");
 
             if (error) {
                 console.error("Error fetching users:", error);
@@ -59,6 +59,7 @@ function Total() {
     const filteredUsers = users.filter((user) => {
         return (
             (user.name && user.name.toLowerCase().includes(search.toLowerCase())) ||
+            (user.username && user.username.toLowerCase().includes(search.toLowerCase())) ||
             (user.pin && user.pin.includes(search)) ||
             (user.phone && user.phone.includes(search)) ||
             (user.bank_account && user.bank_account.includes(search)) ||
@@ -114,6 +115,7 @@ function Total() {
                         <thead>
                             <tr>
                                 <th>Nama</th>
+                                <th>Username</th>
                                 <th>Pin</th>
                                 <th>Nombor Telefon</th>
                                 <th>Akaun Bank</th>
@@ -128,6 +130,7 @@ function Total() {
                                 filteredUsers.map((user, index) => (
                                     <tr key={index}>
                                         <td>{user.name}</td>
+                                        <td>{user.username}</td>
                                         <td>{user.pin}</td>
                                         <td>{user.phone}</td>
                                         <td>{user.bank_account}</td>
