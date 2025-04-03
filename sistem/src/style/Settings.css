@@ -33,7 +33,7 @@ input[readonly] {
     font-weight: bold;
   }
   
-  input[type="text"] {
+  .settings-container input[type="text"] {
     padding: 10px;
     border: 1px solid #ccc;
     border-radius: 4px;
