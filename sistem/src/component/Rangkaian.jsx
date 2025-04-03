@@ -130,49 +130,54 @@ function Rangkaian() {
   return (
     <div>
       <header className="header">
-      <img src="/assets/Logo.png" className="logo" />
+        <img src="/assets/Logo.png" className="logo" />
 
         {/* Hamburger Menu for Small Screens */}
         <MenuIcon
-        className="hamburger"
+          className="hamburger"
           onClick={() => toggleDrawer(true)}  // Open the drawer when the icon is clicked
           style={{ fontSize: 30, cursor: 'pointer', display: 'none' }} // Initially hidden on larger screens
         />
 
-      <nav className="navbar">
-        <ul>
-          <li>
-            <Link to="/home" className={location.pathname === "/home" ? "active" : ""}>
-              Utama
-            </Link>
-          </li>
-          <li>
-            <Link to="/bonus" className={location.pathname === "/bonus" ? "active" : ""}>
-              Bonus
-            </Link>
-          </li>
-          <li>
-            <Link to="/rangkaian" className={location.pathname === "/rangkaian" ? "active" : ""}>
-              Rangkaian anda
-            </Link>
-          </li>
-          <li>
-            <Link to="/contact" className={location.pathname === "/contact" ? "active" : ""}>
-              Hubungi kami
-            </Link>
-          </li>
-          <li>
-            <button onClick={handleLogout} className= "logout-btn">
-            <LogoutIcon />
-            </button>
+        <nav className="navbar">
+          <ul>
+            <li>
+              <Link to="/home" className={location.pathname === "/home" ? "active" : ""}>
+                Utama
+              </Link>
+            </li>
+            <li>
+              <Link to="/bonus" className={location.pathname === "/bonus" ? "active" : ""}>
+                Bonus
+              </Link>
+            </li>
+            <li>
+              <Link to="/rangkaian" className={location.pathname === "/rangkaian" ? "active" : ""}>
+                Rangkaian anda
+              </Link>
+            </li>
+            <li>
+              <Link to="/settings" className={location.pathname === "/settings" ? "active" : ""}>
+                Tetapan
+              </Link>
+            </li>
+            <li>
+              <Link to="/contact" className={location.pathname === "/contact" ? "active" : ""}>
+                Hubungi kami
+              </Link>
+            </li>
+            <li>
+              <button onClick={handleLogout} className="logout-btn">
+                <LogoutIcon />
+              </button>
 
-          </li>
-        
-        </ul>
-      </nav>
-    </header>
+            </li>
 
-    <DrawerComponent openDrawer={openDrawer} toggleDrawer={toggleDrawer} handleLogout={handleLogout} />
+          </ul>
+        </nav>
+      </header>
+
+      <DrawerComponent openDrawer={openDrawer} toggleDrawer={toggleDrawer} handleLogout={handleLogout} />
 
 
       <div className="container">

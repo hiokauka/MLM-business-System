@@ -14,6 +14,7 @@ import Jana from "./component/Jana.jsx";
 import Inquiry from "./component/inquiry.jsx";
 import ProtectedRoute from "./config/ProtectedRoute.jsx";
 import PrivateAdminRoute from "./config/PrivateAdminRoute.jsx";
+import Settings from "./component/Settings.jsx";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/SignUp" element={<SignUpPage />} /> 
         <Route path="/loginadmin" element={<AdminLogin />} />
+       
 
         <Route element={<PrivateAdminRoute />}>
         <Route path="/admin" element={<Admin />} />
@@ -37,7 +39,8 @@ function App() {
           <Route path="/bonus" element={<Bonus />} />
           <Route path="/rangkaian" element={<Rangkaian />} />
           <Route path="/contact" element={<Contact />} />
-          
+          <Route path="/settings" element={<Settings />} />
+
         </Route>
 
       </Routes>

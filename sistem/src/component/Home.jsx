@@ -55,6 +55,11 @@ function Home() {
               </Link>
             </li>
             <li>
+              <Link to="/settings" className={location.pathname === "/settings" ? "active" : ""}>
+                Tetapan
+              </Link>
+            </li>
+            <li>
               <Link to="/contact" className={location.pathname === "/contact" ? "active" : ""}>
                 Hubungi kami
               </Link>

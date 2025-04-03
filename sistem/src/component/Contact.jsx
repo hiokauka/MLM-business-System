@@ -31,7 +31,7 @@ function Home() {
 
         {/* Hamburger Menu for Small Screens */}
         <MenuIcon
-        className="hamburger"
+          className="hamburger"
           onClick={() => toggleDrawer(true)}  // Open the drawer when the icon is clicked
           style={{ fontSize: 30, cursor: 'pointer', display: 'none' }} // Initially hidden on larger screens
         />
@@ -51,6 +51,11 @@ function Home() {
             <li>
               <Link to="/rangkaian" className={location.pathname === "/rangkaian" ? "active" : ""}>
                 Rangkaian anda
+              </Link>
+            </li>
+            <li>
+              <Link to="/settings" className={location.pathname === "/settings" ? "active" : ""}>
+                Tetapan
               </Link>
             </li>
             <li>

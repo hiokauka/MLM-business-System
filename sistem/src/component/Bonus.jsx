@@ -18,7 +18,7 @@ function Bonus() {
 
     const toggleDrawer = (open) => {
         setOpenDrawer(open);  // This will open or close the drawer
-      };
+    };
 
     useEffect(() => {
         const fetchTransactions = async () => {
@@ -55,12 +55,12 @@ function Bonus() {
     }, []);
 
     const handleWithdraw = async () => {
-        const loggedInUser = localStorage.getItem("loggedInUser"); 
+        const loggedInUser = localStorage.getItem("loggedInUser");
         if (!loggedInUser) {
             window.alert("Sila log masuk terlebih dahulu!");
             return;
         }
-    
+
         if (!withdrawAmount || isNaN(withdrawAmount) || withdrawAmount <= 0) {
             window.alert("Sila masukkan jumlah pengeluaran yang sah!");
             return;
@@ -73,32 +73,32 @@ function Bonus() {
             window.alert("Jumlah pengeluaran minimum adalah RM50!");
             return;
         }
-    
+
         // Fetch user details from the "users" table
         const { data: userData, error: userError } = await supabase
             .from("users")
             .select("id, name, bank_name, bank_account, total_bonus")
             .eq("username", loggedInUser)
             .single();
-    
+
         if (userError || !userData) {
             window.alert("Gagal mendapatkan maklumat pengguna!");
             console.error(userError);
             return;
         }
-    
-       
+
+
         if (withdrawAmountNum > userData.total_bonus) {
             window.alert("Jumlah pengeluaran melebihi baki bonus anda!");
             return;
         }
-    
+
         // Start a transaction (Simulating atomic operation)
         const { error: withdrawError } = await supabase
             .from("withdrawals")
             .insert([
                 {
-                    user_id: userData.id, 
+                    user_id: userData.id,
                     name: userData.name,
                     bank_name: userData.bank_name,
                     account_number: userData.bank_account,
@@ -107,43 +107,43 @@ function Bonus() {
                     created_at: new Date().toISOString(),
                 },
             ]);
-    
+
         if (withdrawError) {
             window.alert("Gagal menghantar permohonan pengeluaran!");
             console.error(withdrawError);
             return;
         }
-    
+
         // ✅ Now, deduct the amount from the user's total_bonus in the "users" table
         const newTotalBonus = userData.total_bonus - withdrawAmountNum;
         const { error: updateError } = await supabase
             .from("users")
             .update({ total_bonus: newTotalBonus })
             .eq("id", userData.id);
-    
+
         if (updateError) {
             window.alert("Gagal mengemas kini baki bonus!");
             console.error(updateError);
             return;
         }
-    
+
         // ✅ Fetch updated bonus from Supabase to ensure correctness
         const { data: updatedUserData, error: updatedUserError } = await supabase
             .from("users")
             .select("total_bonus")
             .eq("id", userData.id)
             .single();
-    
+
         if (updatedUserError || !updatedUserData) {
             console.error("Failed to update displayed bonus:", updatedUserError);
         } else {
             setTotalBonus(updatedUserData.total_bonus);
         }
-    
+
         window.alert("Permohonan pengeluaran berjaya dihantar!");
         setWithdrawAmount(""); // Clear input field
     };
-    
+
 
     useEffect(() => {
         const fetchBonus = async () => {
@@ -177,63 +177,68 @@ function Bonus() {
         }
     };
 
-  
 
-   const filteredTransactions = transactions.filter((txn) => {
-    return (
-        (txn.date?.includes(search) || txn.id?.toString().includes(search) || txn.amount?.toString().includes(search) || txn.action?.includes(search)) &&
-        (filter === "" || txn.action === filter) 
-    );
-});
+
+    const filteredTransactions = transactions.filter((txn) => {
+        return (
+            (txn.date?.includes(search) || txn.id?.toString().includes(search) || txn.amount?.toString().includes(search) || txn.action?.includes(search)) &&
+            (filter === "" || txn.action === filter)
+        );
+    });
 
 
     return (
 
         <div>
-        <header className="header">
-          <img src="/assets/Logo.png" className="logo" />
-    
-            {/* Hamburger Menu for Small Screens */}
-            <MenuIcon
-                className="hamburger"
-              onClick={() => toggleDrawer(true)}  // Open the drawer when the icon is clicked
-              style={{ fontSize: 30, cursor: 'pointer', display: 'none' }} // Initially hidden on larger screens
-            />
-    
-          <nav className="navbar">
-            <ul>
-              <li>
-                <Link to="/home" className={location.pathname === "/home" ? "active" : ""}>
-                  Utama
-                </Link>
-              </li>
-              <li>
-                <Link to="/bonus" className={location.pathname === "/bonus" ? "active" : ""}>
-                  Bonus
-                </Link>
-              </li>
-              <li>
-                <Link to="/rangkaian" className={location.pathname === "/rangkaian" ? "active" : ""}>
-                  Rangkaian anda
-                </Link>
-              </li>
-              <li>
-                <Link to="/contact" className={location.pathname === "/contact" ? "active" : ""}>
-                  Hubungi kami
-                </Link>
-              </li>
-              <li>
-                <button onClick={handleLogout} className= "logout-btn">
-                <LogoutIcon />
-                </button>
-    
-              </li>
-            
-            </ul>
-          </nav>
-        </header>
-    
-        <DrawerComponent openDrawer={openDrawer} toggleDrawer={toggleDrawer} handleLogout={handleLogout} />
+            <header className="header">
+                <img src="/assets/Logo.png" className="logo" />
+
+                {/* Hamburger Menu for Small Screens */}
+                <MenuIcon
+                    className="hamburger"
+                    onClick={() => toggleDrawer(true)}  // Open the drawer when the icon is clicked
+                    style={{ fontSize: 30, cursor: 'pointer', display: 'none' }} // Initially hidden on larger screens
+                />
+
+                <nav className="navbar">
+                    <ul>
+                        <li>
+                            <Link to="/home" className={location.pathname === "/home" ? "active" : ""}>
+                                Utama
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/bonus" className={location.pathname === "/bonus" ? "active" : ""}>
+                                Bonus
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/rangkaian" className={location.pathname === "/rangkaian" ? "active" : ""}>
+                                Rangkaian anda
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/settings" className={location.pathname === "/settings" ? "active" : ""}>
+                                Tetapan
+                            </Link>
+                        </li>
+                        <li>
+                            <Link to="/contact" className={location.pathname === "/contact" ? "active" : ""}>
+                                Hubungi kami
+                            </Link>
+                        </li>
+                        <li>
+                            <button onClick={handleLogout} className="logout-btn">
+                                <LogoutIcon />
+                            </button>
+
+                        </li>
+
+                    </ul>
+                </nav>
+            </header>
+
+            <DrawerComponent openDrawer={openDrawer} toggleDrawer={toggleDrawer} handleLogout={handleLogout} />
 
             <div className="container">
                 <div className="bonuscard" onClick={() => console.log("Bonus clicked!")}>
@@ -270,7 +275,7 @@ function Bonus() {
 
 
 
-         <div className="filters">
+            <div className="filters">
                 <input
                     type="text"
                     placeholder="Search by date, ID, amount..."

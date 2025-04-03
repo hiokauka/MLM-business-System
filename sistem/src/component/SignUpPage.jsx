@@ -29,6 +29,12 @@ function SignUpPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    if (formData.username.includes(" ")) {
+      alert("Username tidak boleh mengandungi ruang! Contoh username  : harisi1982 , rogayah21 , aisyah");
+      return;
+    }
+
+
     // 🛑 Validate passwords
     if (formData.password !== formData.confirmPassword) {
       alert("Kata laluan tidak sepadan!");
