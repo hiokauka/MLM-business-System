@@ -41,7 +41,7 @@ input[readonly] {
     width: 99%;  /* Make the input field take full width of the container */
   }
   
-  button {
+  .submitchange button {
     padding: 10px 15px;
     background-color: #23204f;
     color: white;
@@ -52,7 +52,7 @@ input[readonly] {
     width: 100%;
   }
   
-  button:hover {
+  .submitchange button:hover {
     background-color: #45a049;
   }
   

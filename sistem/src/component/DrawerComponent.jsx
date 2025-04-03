@@ -16,6 +16,9 @@ function DrawerComponent({ openDrawer, toggleDrawer, handleLogout }) {
           <ListItem button onClick={() => { window.location.href = "/rangkaian"; toggleDrawer(false); }}>
             <ListItemText primary="Rangkaian Anda" />
           </ListItem>
+          <ListItem button onClick={() => { window.location.href = "/settings"; toggleDrawer(false); }}>
+            <ListItemText primary="Tetapan" />
+          </ListItem>
           <ListItem button onClick={() => { window.location.href = "/contact"; toggleDrawer(false); }}>
             <ListItemText primary="Hubungi Kami" />
           </ListItem>

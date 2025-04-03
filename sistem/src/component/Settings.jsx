@@ -156,7 +156,7 @@ function Settings() {
           <label>Nombor Akaun Bank</label>
           <input type="text" name="bankAccount" value={userData.bankAccount} onChange={handleChange} />
 
-          <button type="button" onClick={handleSave}>Simpan perubahan</button>
+          <button className="submitchange" type="button" onClick={handleSave}>Simpan perubahan</button>
         </form>
       </div>
     </div>
