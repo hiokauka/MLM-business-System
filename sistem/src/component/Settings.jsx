@@ -32,6 +32,7 @@ function Settings() {
     phone: "",
     bankName: "",
     bankAccount: "",
+    oldPhone: "", // Store the old phone number here
   });
 
   useEffect(() => {
@@ -60,6 +61,7 @@ function Settings() {
           icNumber: data.ic,  // Correct field name from the response
           pinNumber: data.pin,
           phone: data.phone,
+          oldPhone: data.phone, // Set oldPhone to the current phone
           bankName: data.bank_name,
           bankAccount: data.bank_account,
         });
@@ -74,21 +76,36 @@ function Settings() {
   };
 
   const handleSave = async () => {
-    const { error } = await supabase
-      .from("users")
-      .update({
-        phone: userData.phone,
-        bank_name: userData.bankName, // Make sure the names match
-        bank_account: userData.bankAccount,
-        ic: userData.icNumber,
-      })
-      .eq("username", userData.username);
+    try {
+      // First, update the phone number in the 'pins' table
+      const { error: pinUpdateError } = await supabase
+        .from("pins")
+        .update({ phone: userData.phone }) // Update the phone in the 'pins' table
+        .eq("phone", userData.oldPhone); // Match the old phone number
 
-    if (error) {
-      console.error("Update error:", error);
-      alert("Tetapan gagal!");
-    } else {
-      alert("Tetapan baru berjaya!");
+      if (pinUpdateError) {
+        throw pinUpdateError; // If there's an error in updating the pins, throw it
+      }
+
+      // Now, update the user data in the 'users' table
+      const { error } = await supabase
+        .from("users")
+        .update({
+          phone: userData.phone,
+          bank_name: userData.bankName,
+          bank_account: userData.bankAccount,
+          ic: userData.icNumber,
+        })
+        .eq("username", userData.username);
+
+      if (error) {
+        throw error; // Throw error if there's a problem updating the user data
+      }
+
+      alert("Maklumat berjaya dikemaskini!"); // Success message
+    } catch (error) {
+      console.error("Error updating data:", error);
+      alert("Gagal kemaskini maklumat! Sila cuba lagi."); // Error message
     }
   };
 
@@ -96,14 +113,11 @@ function Settings() {
     <div>
       <header className="header">
         <img src="/assets/Logo.png" className="logo" />
-
-        {/* Hamburger Menu for Small Screens */}
         <MenuIcon
           className="hamburger"
           onClick={() => toggleDrawer(true)}
           style={{ fontSize: 30, cursor: 'pointer', display: 'none' }}
         />
-
         <nav className="navbar">
           <ul>
             <li>
@@ -141,14 +155,14 @@ function Settings() {
           <label>Nama Penuh</label>
           <input type="text" name="name" value={userData.name} readOnly />
 
-          <label>Nombor</label>
+          <label>Nombor IC</label>
           <input type="text" name="icNumber" value={userData.icNumber} onChange={handleChange} />
 
           <label>Pin</label>
           <input type="text" name="pinNumber" value={userData.pinNumber} readOnly />
 
           <label>Nombor Telefon</label>
-          <input type="text" name="phone" value={userData.phone} onChange={handleChange} />
+          <input type="text" name="phone" value={userData.phone} readOnly />
 
           <label>Nama Bank</label>
           <input type="text" name="bankName" value={userData.bankName} onChange={handleChange} />
