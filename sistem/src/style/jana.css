@@ -141,6 +141,12 @@
   
 }
 
+.total-pin {
+  margin-right: 1250px;
+  font-size: 20px;
+  font-weight: bold;
+}
+
 
 @media (max-width: 768px) {
   .hamburger {

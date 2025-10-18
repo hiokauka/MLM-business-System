@@ -45,6 +45,17 @@ function Jana() {
     }
   };
 
+  const totalPinsToday = nomborpin.filter(pin => {
+    const pinDate = new Date(pin.created_at);
+    const today = new Date();
+    return pinDate.toDateString() === today.toDateString();
+  }).length;
+
+  // Update total pins today display
+  useEffect(() => {
+    document.querySelector('.total-pin').textContent = `Jumlah Pin hari ini : ${totalPinsToday}`;
+  }, [nomborpin, totalPinsToday]);  
+
   // Generate and insert new PIN into Supabase
   const generateRandomNumber = async () => {
     const newPin = Math.floor(10000 + Math.random() * 90000); // 5-digit PIN
@@ -105,6 +116,7 @@ function Jana() {
       <div className="container-display">
         <h2>{randomNumber}</h2>
         <button onClick={generateRandomNumber}>Hasilkan Nombor PIN</button>
+        <h3 className="total-pin"> Jumlah Pin hari ini : </h3>
       </div>
 
       <div className="jana-filters">
