@@ -95,7 +95,7 @@ function Rangkaian() {
     for (let i = 0; i < level; i++) {
       const { data, error } = await supabase
         .from("users")
-        .select("name, phone, created_at, pin")
+        .select("name, username, phone, created_at, pin")
         .in("referral_pin", currentLevelPins);
 
       if (error || !data || data.length === 0) {
@@ -195,6 +195,7 @@ function Rangkaian() {
             <thead>
               <tr>
                 <th>Name</th>
+                <th>Username</th>
                 <th>Phone</th>
                 <th>Date Joined</th>
                 <th>Bonus (RM)</th>
@@ -211,6 +212,7 @@ function Rangkaian() {
                 userNetwork.map((user, index) => (
                   <tr key={index}>
                     <td>{user.name}</td>
+                    <td>{user.username}</td>
                     <td>{user.phone}</td>
                     <td>{new Date(user.created_at).toLocaleDateString()}</td>
                     <td>{user.bonus}</td>
