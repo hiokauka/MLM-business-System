@@ -69,7 +69,7 @@ function Bonus() {
         const withdrawAmountNum = parseFloat(withdrawAmount);
 
         // ✅ Minimum withdrawal amount check
-        if (withdrawAmountNum < 50) {
+        if (withdrawAmountNum < 30) {
             window.alert("Jumlah pengeluaran minimum adalah RM50!");
             return;
         }
