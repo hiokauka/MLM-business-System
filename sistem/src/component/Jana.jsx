@@ -1,46 +1,45 @@
 import React, { useState, useEffect } from "react";
-import "../style/jana.css"; // Make sure your CSS is correct
 import { Link, useLocation } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import supabase from "../config/supabaseClient";
 import DrawerAdmin from "./DrawerAdmin";
 import MenuIcon from "@mui/icons-material/Menu";
+import { 
+  Box, Container, Typography, Card, CardContent, 
+  Button, TextField, Table, TableBody, TableCell, 
+  TableContainer, TableHead, TableRow, Paper, Chip, InputAdornment, Grid
+} from "@mui/material";
+import VpnKeyIcon from '@mui/icons-material/VpnKey';
+import SearchIcon from '@mui/icons-material/Search';
+import AddCircleOutlineIcon from '@mui/icons-material/AddCircleOutline';
 
 function Jana() {
   const location = useLocation();
-  const [randomNumber, setRandomNumber] = useState("");
+  const [randomNumber, setRandomNumber] = useState("-----");
   const [nomborpin, setNomborPin] = useState([]);
   const [search, setSearch] = useState("");
   const [openDrawer, setOpenDrawer] = useState(false);
 
-  const toggleDrawer = (open) => {
-    setOpenDrawer(open);  // This will open or close the drawer
-  };
+  const toggleDrawer = (open) => setOpenDrawer(open);
 
   const handleLogout = () => {
-    const confirmLogout = window.confirm("Anda pasti ingin log keluar?");
-    if (confirmLogout) {
-      console.log("Admin logged out"); // Replace with actual logout logic
+    if (window.confirm("Anda pasti ingin log keluar?")) {
       localStorage.removeItem("adminSession");
-
-      window.location.href = "/login"; // Redirect to login page
+      window.location.href = "/login";
     }
   };
 
   useEffect(() => {
-    fetchPins(); // Fetch existing pins from Supabase when the page loads
+    fetchPins();
   }, []);
 
-  // Fetch all pins from Supabase
   const fetchPins = async () => {
     const { data, error } = await supabase
       .from("pins")
       .select("*")
       .order("created_at", { ascending: false });
 
-    if (error) {
-      console.error("❌ Gagal mendapatkan data PIN:", error);
-    } else {
+    if (!error && data) {
       setNomborPin(data);
     }
   };
@@ -51,52 +50,38 @@ function Jana() {
     return pinDate.toDateString() === today.toDateString();
   }).length;
 
-  // Update total pins today display
-  useEffect(() => {
-    document.querySelector('.total-pin').textContent = `Jumlah Pin hari ini : ${totalPinsToday}`;
-  }, [nomborpin, totalPinsToday]);  
-
-  // Generate and insert new PIN into Supabase
   const generateRandomNumber = async () => {
-    const newPin = Math.floor(10000 + Math.random() * 90000); // 5-digit PIN
-    setRandomNumber(newPin);
+    const newPin = Math.floor(10000 + Math.random() * 90000); 
+    setRandomNumber(newPin.toString());
 
-    const loggedInUser = localStorage.getItem("loggedInUser"); // Simulated phone number
-    const today = new Date().toISOString(); // Current timestamp
-
+    const today = new Date().toISOString(); 
 
     const { error } = await supabase.from("pins").insert([
-      { pin: newPin, phone: null, created_at: today },
+      { pin: newPin, phone: null, status: "Aktif", created_at: today },
     ]);
 
     if (error) {
-      console.error("❌ Gagal menyimpan PIN:", error);
       alert("Gagal menyimpan PIN!");
     } else {
-      alert("✅ Nombor PIN berjaya dihasilkan!");
-      fetchPins(); // Fetch updated pins after inserting a new one
+      fetchPins(); 
     }
   };
 
-  // Filter pins based on search input
   const filteredpin = nomborpin.filter(
     (pin) =>
-      pin.pin.toString().includes(search) ||
-      pin.phone_number.includes(search)
+      (pin.pin && pin.pin.toString().includes(search)) ||
+      (pin.phone && pin.phone.includes(search))
   );
 
   return (
-    <div>
-      <header className="header">
-        <img src="/assets/Logo.png" className="logo" />
-
-        {/* Hamburger Menu for Small Screens */}
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#f8fafc', pb: 10 }}>
+      <header className="header" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.05)', borderBottom: 'none' }}>
+        <img src="/assets/Logo.png" className="logo" alt="Logo" />
         <MenuIcon
-        className="hamburger"
-          onClick={() => toggleDrawer(true)}  // Open the drawer when the icon is clicked
-          style={{ fontSize: 30, cursor: 'pointer', display: 'none' }} // Initially hidden on larger screens
+          className="hamburger"
+          onClick={() => toggleDrawer(true)}  
+          style={{ fontSize: 30, cursor: 'pointer', display: 'none' }}
         />
-
         <nav className="navbar">
           <ul>
             <li><Link to="/total" className={location.pathname === "/total" ? "active" : ""}>Jumlah pengguna</Link></li>
@@ -113,52 +98,123 @@ function Jana() {
 
       <DrawerAdmin openDrawer={openDrawer} toggleDrawer={toggleDrawer} handleLogout={handleLogout} />
 
-      <div className="container-display">
-        <h2>{randomNumber}</h2>
-        <button onClick={generateRandomNumber}>Hasilkan Nombor PIN</button>
-        <h3 className="total-pin"> Jumlah Pin hari ini : </h3>
-      </div>
+      <Container maxWidth="lg" sx={{ paddingTop: '100px' }}>
+        
+        <Grid container spacing={4} sx={{ mb: 6 }}>
+          {/* Generate Pin Card */}
+          <Grid item xs={12} md={7}>
+            <Card sx={{ 
+              borderRadius: '20px', 
+              background: 'linear-gradient(135deg, #0ea5e9 0%, #0369a1 100%)',
+              color: 'white',
+              boxShadow: '0 10px 30px rgba(14, 165, 233, 0.3)',
+              height: '100%',
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center'
+            }}>
+              <CardContent sx={{ p: 5, textAlign: 'center' }}>
+                <VpnKeyIcon sx={{ fontSize: 60, mb: 2, opacity: 0.9 }} />
+                <Typography variant="h2" fontWeight="900" sx={{ letterSpacing: '8px', mb: 4 }}>
+                  {randomNumber}
+                </Typography>
+                <Button 
+                  variant="contained" 
+                  size="large"
+                  onClick={generateRandomNumber}
+                  startIcon={<AddCircleOutlineIcon />}
+                  sx={{ 
+                    backgroundColor: 'white', 
+                    color: '#0369a1',
+                    fontWeight: 'bold',
+                    fontSize: '1.1rem',
+                    px: 4, py: 1.5,
+                    borderRadius: '50px',
+                    '&:hover': { backgroundColor: '#f1f5f9' }
+                  }}
+                >
+                  Hasilkan Nombor PIN Baru
+                </Button>
+              </CardContent>
+            </Card>
+          </Grid>
 
-      <div className="jana-filters">
-        <input
-          type="text"
-          placeholder="Carian nombor pin..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-        />
-      </div>
+          {/* Stats Card */}
+          <Grid item xs={12} md={5}>
+            <Card sx={{ borderRadius: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', height: '100%' }}>
+              <CardContent sx={{ p: 4, display: 'flex', flexDirection: 'column', justifyContent: 'center', height: '100%', alignItems: 'center' }}>
+                <Typography variant="h6" color="#64748b" gutterBottom>
+                  Jumlah Pin Dijana Hari Ini
+                </Typography>
+                <Typography variant="h1" fontWeight="800" color="#0f172a">
+                  {totalPinsToday}
+                </Typography>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
 
-      <div className="jana-table-container">
-        <div className="table-wrapper1">
-          <table>
-            <thead>
-              <tr>
-                <th>Nombor Pin</th>
-                <th>Nombor berdaftar</th>
-                <th>Tarikh berdaftar</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
+        {/* Filters */}
+        <Box sx={{ mb: 4 }}>
+          <TextField
+            fullWidth
+            placeholder="Carian nombor pin atau nombor telefon..."
+            variant="outlined"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            InputProps={{
+              startAdornment: (
+                <InputAdornment position="start">
+                  <SearchIcon sx={{ color: '#94a3b8' }} />
+                </InputAdornment>
+              ),
+              sx: { backgroundColor: 'white', borderRadius: '12px' }
+            }}
+          />
+        </Box>
+
+        {/* Table */}
+        <TableContainer component={Paper} sx={{ borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+          <Table>
+            <TableHead sx={{ backgroundColor: '#f1f5f9' }}>
+              <TableRow>
+                <TableCell sx={{ fontWeight: '700', color: '#334155', fontSize: '1.05rem' }}>Nombor Pin</TableCell>
+                <TableCell sx={{ fontWeight: '700', color: '#334155', fontSize: '1.05rem' }}>Nombor Telefon (Pendaftar)</TableCell>
+                <TableCell sx={{ fontWeight: '700', color: '#334155', fontSize: '1.05rem' }}>Tarikh Dicipta</TableCell>
+                <TableCell sx={{ fontWeight: '700', color: '#334155', fontSize: '1.05rem' }}>Status</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {filteredpin.length > 0 ? (
                 filteredpin.map((pin, index) => (
-                  <tr key={index}>
-                    <td>{pin.pin}</td>
-                    <td>{pin.phone}</td>
-                    <td>{new Date(pin.created_at).toLocaleDateString("en-GB")}</td>
-                    <td>{pin.status}</td>
-                  </tr>
+                  <TableRow key={index} hover>
+                    <TableCell sx={{ fontWeight: '800', color: '#0ea5e9', fontSize: '1.1rem', letterSpacing: '2px' }}>
+                      {pin.pin}
+                    </TableCell>
+                    <TableCell sx={{ color: '#64748b' }}>{pin.phone || '-'}</TableCell>
+                    <TableCell sx={{ color: '#64748b' }}>{new Date(pin.created_at).toLocaleDateString("en-GB")}</TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={pin.status === 'Aktif' || !pin.status ? 'Aktif (Belum Diguna)' : 'Digunakan'} 
+                        color={pin.status === 'Aktif' || !pin.status ? 'error' : 'default'} 
+                        sx={{ fontWeight: 'bold' }}
+                      />
+                    </TableCell>
+                  </TableRow>
                 ))
               ) : (
-                <tr>
-                  <td colSpan="3">Tiada rekod ditemui</td>
-                </tr>
+                <TableRow>
+                  <TableCell colSpan={4} align="center" sx={{ py: 4, color: '#64748b' }}>
+                    Tiada rekod pin ditemui.
+                  </TableCell>
+                </TableRow>
               )}
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+      </Container>
+    </Box>
   );
 }
 

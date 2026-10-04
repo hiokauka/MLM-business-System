@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
-import "../style/SignUpPage.css";
+import { Link as RouterLink, useNavigate } from "react-router-dom";
 import supabase from "../config/supabaseClient";
+import { Box, Button, TextField, Typography, Container, Paper, Link, Grid } from '@mui/material';
 
 function SignUpPage() {
   const navigate = useNavigate();
@@ -50,12 +50,11 @@ function SignUpPage() {
       // ✅ Check PIN
       const { data: pinData, error: pinError } = await supabase
         .from("pins")
-        .select("pin")
+        .select("pin, status")
         .eq("pin", formData.pin)
-        .eq("status", "available")
         .single();
 
-      if (!pinData) {
+      if (!pinData || (pinData.status !== "Aktif" && pinData.status !== null && pinData.status !== "available")) {
         alert("PIN tidak sah atau telah digunakan!");
         return;
       }
@@ -124,49 +123,85 @@ function SignUpPage() {
   };
 
   return (
-    <div className="signup-container">
-      <h2>Daftar Akaun</h2>
-      <form onSubmit={handleSubmit}>
-        <label>Username:</label>
-        <input type="text" name="username" value={formData.username} onChange={handleChange} required />
-
-        <label>Nama:</label>
-        <input type="text" name="name" value={formData.name} onChange={handleChange} required />
-
-        <label>Alamat rumah :</label>
-        <input type="text" name="alamat" value={formData.alamat} onChange={handleChange} required />
-
-        <label>No IC:</label>
-        <input type="text" name="ic" value={formData.ic} onChange={handleChange} required />
-
-        <label>Nombor Telefon:</label>
-        <input type="tel" name="phone" value={formData.phone} onChange={handleChange} required />
-
-        <label>Kata Laluan:</label>
-        <input type="password" name="password" value={formData.password} onChange={handleChange} required />
-
-        <label>Pengesahan Kata Laluan:</label>
-        <input type="password" name="confirmPassword" value={formData.confirmPassword} onChange={handleChange} required />
-
-        <label>Nombor Akaun Bank:</label>
-        <input type="text" name="bank_account" value={formData.bank_account} onChange={handleChange} required />
-
-        <label>Nama Bank:</label>
-        <input type="text" name="bank_name" value={formData.bank_name} onChange={handleChange} required />
-
-        <label>PIN:</label>
-        <input type="text" name="pin" value={formData.pin} onChange={handleChange} required />
-
-        <label>PIN Referral:</label>
-        <input type="text" name="referral" value={formData.referral} onChange={handleChange} />
-
-        <button type="submit">Daftar</button>
-      </form>
-
-      <p>
-        Sudah ada akaun? <Link to="/login" className="daftarmasuk">Log Masuk</Link>
-      </p>
-    </div>
+    <Box sx={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', // Sleek dark slate gradient
+      padding: 3
+    }}>
+      <Container maxWidth="sm">
+        <Paper elevation={24} sx={{ p: 4, borderRadius: 4, backdropFilter: 'blur(10px)', backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+          <Box textAlign="center" mb={3}>
+            <img src="/assets/Logo.png" alt="Logo" style={{ maxWidth: '120px', marginBottom: '10px' }} onError={(e) => e.target.style.display = 'none'} />
+            <Typography variant="h5" fontWeight="800" color="primary.dark">
+              Pendaftaran Akaun Baru
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Lengkapkan maklumat di bawah untuk menyertai kami
+            </Typography>
+          </Box>
+          
+          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            <Grid container spacing={2}>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Username" name="username" fullWidth value={formData.username} onChange={handleChange} required variant="outlined" />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Nama Penuh" name="name" fullWidth value={formData.name} onChange={handleChange} required variant="outlined" />
+              </Grid>
+              <Grid item xs={12}>
+                <TextField label="Alamat Rumah" name="alamat" fullWidth value={formData.alamat} onChange={handleChange} required variant="outlined" multiline rows={2} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="No. IC" name="ic" fullWidth value={formData.ic} onChange={handleChange} required variant="outlined" />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Nombor Telefon" name="phone" type="tel" fullWidth value={formData.phone} onChange={handleChange} required variant="outlined" />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Kata Laluan" name="password" type="password" fullWidth value={formData.password} onChange={handleChange} required variant="outlined" />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Pengesahan Kata Laluan" name="confirmPassword" type="password" fullWidth value={formData.confirmPassword} onChange={handleChange} required variant="outlined" />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Nama Bank" name="bank_name" fullWidth value={formData.bank_name} onChange={handleChange} required variant="outlined" />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="Nombor Akaun Bank" name="bank_account" fullWidth value={formData.bank_account} onChange={handleChange} required variant="outlined" />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="PIN Pengaktifan" name="pin" fullWidth value={formData.pin} onChange={handleChange} required variant="outlined" />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField label="PIN Referral (Pilihan)" name="referral" fullWidth value={formData.referral} onChange={handleChange} variant="outlined" />
+              </Grid>
+            </Grid>
+            
+            <Button 
+              type="submit" 
+              variant="contained" 
+              size="large" 
+              fullWidth
+              sx={{ mt: 2, py: 1.5, borderRadius: 2, fontWeight: 'bold', fontSize: '1.1rem', textTransform: 'none', background: 'linear-gradient(90deg, #2563eb 0%, #4f46e5 100%)' }}
+            >
+              Daftar Sekarang
+            </Button>
+          </Box>
+          
+          <Box textAlign="center" mt={3}>
+            <Typography variant="body2">
+              Sudah ada akaun?{' '}
+              <Link component={RouterLink} to="/login" underline="hover" fontWeight="bold" color="primary.main">
+                Log Masuk
+              </Link>
+            </Typography>
+          </Box>
+        </Paper>
+      </Container>
+    </Box>
   );
 }
 

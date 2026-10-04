@@ -1,336 +1,334 @@
 import React, { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
-import "../style/bonus.css";  // ✅ Ensure you have a CSS file
 import supabase from "../config/supabaseClient";
 import DrawerComponent from "./DrawerComponent";
 import MenuIcon from "@mui/icons-material/Menu";
-
+import { 
+  Box, Container, Typography, Grid, Card, CardContent, 
+  TextField, Button, Select, MenuItem, InputLabel, FormControl,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper, Chip
+} from "@mui/material";
+import AccountBalanceWalletIcon from '@mui/icons-material/AccountBalanceWallet';
+import RequestQuoteIcon from '@mui/icons-material/RequestQuote';
+import SearchIcon from '@mui/icons-material/Search';
 
 function Bonus() {
-    const location = useLocation();
-    const [openDrawer, setOpenDrawer] = useState(false);
-    const [totalBonus, setTotalBonus] = useState(0);
-    const [withdrawAmount, setWithdrawAmount] = useState("");
-    const [transactions, setTransactions] = useState([]);
-    const [search, setSearch] = useState("");
-    const [filter, setFilter] = useState("");
+  const location = useLocation();
+  const [openDrawer, setOpenDrawer] = useState(false);
+  const [totalBonus, setTotalBonus] = useState(0);
+  const [withdrawAmount, setWithdrawAmount] = useState("");
+  const [transactions, setTransactions] = useState([]);
+  const [search, setSearch] = useState("");
+  const [filter, setFilter] = useState("");
 
-    const toggleDrawer = (open) => {
-        setOpenDrawer(open);  // This will open or close the drawer
+  const toggleDrawer = (open) => setOpenDrawer(open);
+
+  useEffect(() => {
+    const fetchTransactions = async () => {
+      const loggedInUser = localStorage.getItem("loggedInUser");
+      if (!loggedInUser) return;
+
+      const { data: userData, error: userError } = await supabase
+        .from("users")
+        .select("id")
+        .eq("username", loggedInUser)
+        .single();
+
+      if (userError || !userData) return;
+
+      const { data: withdrawals, error: withdrawalsError } = await supabase
+        .from("withdrawals")
+        .select("created_at, id, amount, action")
+        .eq("user_id", userData.id)
+        .order("created_at", { ascending: false });
+
+      if (!withdrawalsError) setTransactions(withdrawals);
     };
 
-    useEffect(() => {
-        const fetchTransactions = async () => {
-            const loggedInUser = localStorage.getItem("loggedInUser");
-            if (!loggedInUser) return;
+    fetchTransactions();
+  }, []);
 
-            // Get user ID
-            const { data: userData, error: userError } = await supabase
-                .from("users")
-                .select("id")
-                .eq("username", loggedInUser)
-                .single();
+  const handleWithdraw = async () => {
+    const loggedInUser = localStorage.getItem("loggedInUser");
+    if (!loggedInUser) {
+      window.alert("Sila log masuk terlebih dahulu!");
+      return;
+    }
 
-            if (userError || !userData) {
-                console.error("Error fetching user ID:", userError);
-                return;
-            }
+    if (!withdrawAmount || isNaN(withdrawAmount) || withdrawAmount <= 0) {
+      window.alert("Sila masukkan jumlah pengeluaran yang sah!");
+      return;
+    }
 
-            // Fetch user's withdrawals
-            const { data: withdrawals, error: withdrawalsError } = await supabase
-                .from("withdrawals")
-                .select("created_at, id, amount, action")
-                .eq("user_id", userData.id)
-                .order("created_at", { ascending: false }); // Show latest first
+    const withdrawAmountNum = parseFloat(withdrawAmount);
 
-            if (withdrawalsError) {
-                console.error("Error fetching withdrawals:", withdrawalsError);
-            } else {
-                setTransactions(withdrawals);
-            }
-        };
+    if (withdrawAmountNum < 50) {
+      window.alert("Jumlah pengeluaran minimum adalah RM50!");
+      return;
+    }
 
-        fetchTransactions();
-    }, []);
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("id, name, bank_name, bank_account, total_bonus")
+      .eq("username", loggedInUser)
+      .single();
 
-    const handleWithdraw = async () => {
-        const loggedInUser = localStorage.getItem("loggedInUser");
-        if (!loggedInUser) {
-            window.alert("Sila log masuk terlebih dahulu!");
-            return;
-        }
+    if (userError || !userData) {
+      window.alert("Gagal mendapatkan maklumat pengguna!");
+      return;
+    }
 
-        if (!withdrawAmount || isNaN(withdrawAmount) || withdrawAmount <= 0) {
-            window.alert("Sila masukkan jumlah pengeluaran yang sah!");
-            return;
-        }
+    if (withdrawAmountNum > userData.total_bonus) {
+      window.alert("Jumlah pengeluaran melebihi baki bonus anda!");
+      return;
+    }
 
-        const withdrawAmountNum = parseFloat(withdrawAmount);
+    const { error: withdrawError } = await supabase
+      .from("withdrawals")
+      .insert([
+        {
+          user_id: userData.id,
+          name: userData.name,
+          bank_name: userData.bank_name,
+          account_number: userData.bank_account,
+          amount: withdrawAmountNum,
+          action: "pending",
+          created_at: new Date().toISOString(),
+        },
+      ]);
 
-        // ✅ Minimum withdrawal amount check
-        if (withdrawAmountNum < 30) {
-            window.alert("Jumlah pengeluaran minimum adalah RM50!");
-            return;
-        }
+    if (withdrawError) {
+      window.alert("Gagal menghantar permohonan pengeluaran!");
+      return;
+    }
 
-        // Fetch user details from the "users" table
-        const { data: userData, error: userError } = await supabase
-            .from("users")
-            .select("id, name, bank_name, bank_account, total_bonus")
-            .eq("username", loggedInUser)
-            .single();
+    const newTotalBonus = userData.total_bonus - withdrawAmountNum;
+    const { error: updateError } = await supabase
+      .from("users")
+      .update({ total_bonus: newTotalBonus })
+      .eq("id", userData.id);
 
-        if (userError || !userData) {
-            window.alert("Gagal mendapatkan maklumat pengguna!");
-            console.error(userError);
-            return;
-        }
+    if (updateError) {
+      window.alert("Gagal mengemas kini baki bonus!");
+      return;
+    }
 
+    setTotalBonus(newTotalBonus);
+    window.alert("Permohonan pengeluaran berjaya dihantar!");
+    setWithdrawAmount("");
+  };
 
-        if (withdrawAmountNum > userData.total_bonus) {
-            window.alert("Jumlah pengeluaran melebihi baki bonus anda!");
-            return;
-        }
+  useEffect(() => {
+    const fetchBonus = async () => {
+      const loggedInUser = localStorage.getItem("loggedInUser");
+      if (!loggedInUser) return;
 
-        // Start a transaction (Simulating atomic operation)
-        const { error: withdrawError } = await supabase
-            .from("withdrawals")
-            .insert([
-                {
-                    user_id: userData.id,
-                    name: userData.name,
-                    bank_name: userData.bank_name,
-                    account_number: userData.bank_account,
-                    amount: withdrawAmountNum,
-                    action: "pending",
-                    created_at: new Date().toISOString(),
-                },
-            ]);
+      const { data, error } = await supabase
+        .from("users")
+        .select("total_bonus")
+        .eq("username", loggedInUser)
+        .single();
 
-        if (withdrawError) {
-            window.alert("Gagal menghantar permohonan pengeluaran!");
-            console.error(withdrawError);
-            return;
-        }
-
-        // ✅ Now, deduct the amount from the user's total_bonus in the "users" table
-        const newTotalBonus = userData.total_bonus - withdrawAmountNum;
-        const { error: updateError } = await supabase
-            .from("users")
-            .update({ total_bonus: newTotalBonus })
-            .eq("id", userData.id);
-
-        if (updateError) {
-            window.alert("Gagal mengemas kini baki bonus!");
-            console.error(updateError);
-            return;
-        }
-
-        // ✅ Fetch updated bonus from Supabase to ensure correctness
-        const { data: updatedUserData, error: updatedUserError } = await supabase
-            .from("users")
-            .select("total_bonus")
-            .eq("id", userData.id)
-            .single();
-
-        if (updatedUserError || !updatedUserData) {
-            console.error("Failed to update displayed bonus:", updatedUserError);
-        } else {
-            setTotalBonus(updatedUserData.total_bonus);
-        }
-
-        window.alert("Permohonan pengeluaran berjaya dihantar!");
-        setWithdrawAmount(""); // Clear input field
+      if (!error && data) setTotalBonus(data.total_bonus);
     };
 
+    fetchBonus();
+  }, []);
 
-    useEffect(() => {
-        const fetchBonus = async () => {
-            const loggedInUser = localStorage.getItem("loggedInUser"); // Get stored username
-            if (!loggedInUser) return;
+  const handleLogout = () => {
+    if (window.confirm("Anda pasti ingin log keluar?")) {
+      localStorage.removeItem("userSession");
+      localStorage.removeItem("loggedInUser");
+      window.location.href = "/login";
+    }
+  };
 
-            // Fetch user's bonus from Supabase
-            const { data, error } = await supabase
-                .from("users") // Assuming "users" table has a "total_bonus" column
-                .select("total_bonus")
-                .eq("username", loggedInUser)
-                .single();
-
-            if (error) {
-                console.error("Error fetching bonus:", error);
-            } else if (data) {
-                setTotalBonus(data.total_bonus); // Update state
-            }
-        };
-
-        fetchBonus();
-    }, []);
-
-    const handleLogout = () => {
-        const confirmLogout = window.confirm("Anda pasti ingin log keluar?");
-        if (confirmLogout) {
-            console.log("User logged out"); // Replace with actual logout logic
-            localStorage.removeItem("userSession");
-            localStorage.removeItem("loggedInUser");
-            window.location.href = "/login"; // Redirect to login page
-        }
-    };
-
-
-
-    const filteredTransactions = transactions.filter((txn) => {
-        return (
-            (txn.date?.includes(search) || txn.id?.toString().includes(search) || txn.amount?.toString().includes(search) || txn.action?.includes(search)) &&
-            (filter === "" || txn.action === filter)
-        );
-    });
-
-
+  const filteredTransactions = transactions.filter((txn) => {
+    const searchString = search.toLowerCase();
+    const dateStr = new Date(txn.created_at).toLocaleDateString("en-GB").toLowerCase();
+    
     return (
-
-        <div>
-            <header className="header">
-                <img src="/assets/Logo.png" className="logo" />
-
-                {/* Hamburger Menu for Small Screens */}
-                <MenuIcon
-                    className="hamburger"
-                    onClick={() => toggleDrawer(true)}  // Open the drawer when the icon is clicked
-                    style={{ fontSize: 30, cursor: 'pointer', display: 'none' }} // Initially hidden on larger screens
-                />
-
-                <nav className="navbar">
-                    <ul>
-                        <li>
-                            <Link to="/home" className={location.pathname === "/home" ? "active" : ""}>
-                                Utama
-                            </Link>
-                        </li>
-                        <li>
-                            <Link to="/bonus" className={location.pathname === "/bonus" ? "active" : ""}>
-                                Bonus
-                            </Link>
-                        </li>
-                        <li>
-                            <Link to="/rangkaian" className={location.pathname === "/rangkaian" ? "active" : ""}>
-                                Rangkaian anda
-                            </Link>
-                        </li>
-                        <li>
-                            <Link to="/settings" className={location.pathname === "/settings" ? "active" : ""}>
-                                Tetapan
-                            </Link>
-                        </li>
-                        <li>
-                            <Link to="/contact" className={location.pathname === "/contact" ? "active" : ""}>
-                                Hubungi kami
-                            </Link>
-                        </li>
-                        <li>
-                            <button onClick={handleLogout} className="logout-btn">
-                                <LogoutIcon />
-                            </button>
-
-                        </li>
-
-                    </ul>
-                </nav>
-            </header>
-
-            <DrawerComponent openDrawer={openDrawer} toggleDrawer={toggleDrawer} handleLogout={handleLogout} />
-
-            <div className="container">
-                <div className="bonuscard" onClick={() => console.log("Bonus clicked!")}>
-
-                    <h2>
-                        Total Bonus : RM {totalBonus}
-
-                    </h2>
-
-
-                </div>
-                <div className="withdraw-container">
-
-
-                    <input className="jumlah"
-                        type="number"
-                        placeholder="Nyatakan jumlah yang ingin dikeluarkan"
-                        value={withdrawAmount}
-                        onChange={(e) => setWithdrawAmount(e.target.value)}
-
-                    />
-                    <button className="withdraw-button" onClick={handleWithdraw} > Pengeluaran </button>
-
-
-
-
-
-
-                </div>
-
-
-            </div>
-
-
-
-
-            <div className="filters">
-                <input
-                    type="text"
-                    placeholder="Search by date, ID, amount..."
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                />
-                <select value={filter} onChange={(e) => setFilter(e.target.value)}>
-                    <option value="">All Status</option>
-                    <option value="completed">Completed</option>
-                    <option value="pending">Pending</option>
-                </select>
-            </div>
-
-            <div className="tfcard" onClick={() => console.log("withdraw clicked!")}>
-                <div className="tablecontainer" >
-
-                    <table>
-                        <colgroup>
-                            <col style={{ width: "20%" }} />
-                            <col style={{ width: "15%" }} />
-                            <col style={{ width: "30%" }} />
-                            <col style={{ width: "35%" }} />
-                        </colgroup>
-                        <thead>
-                            <tr>
-                                <th>Tarikh</th>
-                                <th>Id Transaksi</th>
-                                <th>Status</th>
-                                <th>Jumlah Pengeluaran</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {filteredTransactions.length > 0 ? (
-                                filteredTransactions.map((txn, index) => (
-                                    <tr key={index}>
-                                        <td>{new Date(txn.created_at).toLocaleDateString("en-GB")}</td>
-                                        <td>{txn.id}</td>
-                                        <td>{txn.action}</td>
-                                        <td>{txn.amount}</td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan="4">No transactions found</td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-
-
-                </div>
-            </div>
-        </div>
+      (dateStr.includes(searchString) || 
+       txn.id?.toString().includes(searchString) || 
+       txn.amount?.toString().includes(searchString) || 
+       txn.action?.toLowerCase().includes(searchString)) &&
+      (filter === "" || txn.action === filter)
     );
+  });
+
+  return (
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#f8fafc', pb: 10 }}>
+      {/* Header / Navbar */}
+      <header className="header" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.05)', borderBottom: 'none' }}>
+        <img src="/assets/Logo.png" className="logo" alt="Logo" />
+        <MenuIcon
+          className="hamburger"
+          onClick={() => toggleDrawer(true)}
+          style={{ fontSize: 30, cursor: 'pointer', display: 'none' }}
+        />
+        <nav className="navbar">
+          <ul>
+            <li><Link to="/home" className={location.pathname === "/home" ? "active" : ""}>Utama</Link></li>
+            <li><Link to="/bonus" className={location.pathname === "/bonus" ? "active" : ""}>Bonus</Link></li>
+            <li><Link to="/rangkaian" className={location.pathname === "/rangkaian" ? "active" : ""}>Rangkaian anda</Link></li>
+            <li><Link to="/settings" className={location.pathname === "/settings" ? "active" : ""}>Tetapan</Link></li>
+            <li><Link to="/contact" className={location.pathname === "/contact" ? "active" : ""}>Hubungi kami</Link></li>
+            <li>
+              <button onClick={handleLogout} className="logout-btn">
+                <LogoutIcon />
+              </button>
+            </li>
+          </ul>
+        </nav>
+      </header>
+
+      <DrawerComponent openDrawer={openDrawer} toggleDrawer={toggleDrawer} handleLogout={handleLogout} />
+
+      <Container maxWidth="lg" sx={{ paddingTop: '100px' }}>
+        
+        <Typography variant="h4" fontWeight="800" color="#0f172a" gutterBottom sx={{ mb: 4 }}>
+          Pengurusan Bonus
+        </Typography>
+
+        <Grid container spacing={4} sx={{ mb: 6 }}>
+          {/* Total Bonus Card */}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ 
+              borderRadius: '20px', 
+              background: 'linear-gradient(135deg, #2563eb 0%, #1e40af 100%)',
+              color: 'white',
+              boxShadow: '0 10px 30px rgba(37, 99, 235, 0.3)',
+              height: '100%',
+              display: 'flex',
+              alignItems: 'center'
+            }}>
+              <CardContent sx={{ p: 4, width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <Box>
+                  <Typography variant="subtitle1" fontWeight="600" sx={{ opacity: 0.9, mb: 1 }}>
+                    Baki Bonus Semasa
+                  </Typography>
+                  <Typography variant="h3" fontWeight="800">
+                    RM {parseFloat(totalBonus).toFixed(2)}
+                  </Typography>
+                </Box>
+                <AccountBalanceWalletIcon sx={{ fontSize: 60, opacity: 0.8 }} />
+              </CardContent>
+            </Card>
+          </Grid>
+
+          {/* Withdraw Card */}
+          <Grid item xs={12} md={6}>
+            <Card sx={{ borderRadius: '20px', boxShadow: '0 10px 30px rgba(0,0,0,0.05)', height: '100%' }}>
+              <CardContent sx={{ p: 4 }}>
+                <Typography variant="h6" fontWeight="700" color="#0f172a" gutterBottom>
+                  Permohonan Pengeluaran
+                </Typography>
+                <Typography variant="body2" color="#64748b" sx={{ mb: 3 }}>
+                  Minimum pengeluaran adalah RM50.
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 2 }}>
+                  <TextField 
+                    fullWidth
+                    label="Jumlah Pengeluaran (RM)" 
+                    variant="outlined" 
+                    type="number"
+                    value={withdrawAmount}
+                    onChange={(e) => setWithdrawAmount(e.target.value)}
+                    InputProps={{
+                      startAdornment: <Typography sx={{ mr: 1, color: '#64748b' }}>RM</Typography>
+                    }}
+                  />
+                  <Button 
+                    variant="contained" 
+                    onClick={handleWithdraw}
+                    startIcon={<RequestQuoteIcon />}
+                    sx={{ 
+                      backgroundColor: '#10b981', 
+                      '&:hover': { backgroundColor: '#059669' },
+                      px: 3,
+                      borderRadius: '8px',
+                      fontWeight: 'bold',
+                      minWidth: '150px'
+                    }}
+                  >
+                    Keluarkan
+                  </Button>
+                </Box>
+              </CardContent>
+            </Card>
+          </Grid>
+        </Grid>
+
+        {/* Filters */}
+        <Box sx={{ display: 'flex', gap: 2, mb: 3, flexWrap: 'wrap' }}>
+          <TextField
+            placeholder="Cari transaksi..."
+            variant="outlined"
+            size="small"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+            InputProps={{
+              startAdornment: <SearchIcon sx={{ color: '#94a3b8', mr: 1 }} />
+            }}
+            sx={{ flexGrow: 1, backgroundColor: 'white', borderRadius: '8px' }}
+          />
+          <FormControl size="small" sx={{ minWidth: 200, backgroundColor: 'white', borderRadius: '8px' }}>
+            <InputLabel>Status</InputLabel>
+            <Select
+              value={filter}
+              label="Status"
+              onChange={(e) => setFilter(e.target.value)}
+            >
+              <MenuItem value="">Semua Status</MenuItem>
+              <MenuItem value="completed">Selesai (Completed)</MenuItem>
+              <MenuItem value="pending">Dalam Proses (Pending)</MenuItem>
+            </Select>
+          </FormControl>
+        </Box>
+
+        {/* Transactions Table */}
+        <TableContainer component={Paper} sx={{ borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+          <Table>
+            <TableHead sx={{ backgroundColor: '#f1f5f9' }}>
+              <TableRow>
+                <TableCell sx={{ fontWeight: '700', color: '#334155' }}>Tarikh</TableCell>
+                <TableCell sx={{ fontWeight: '700', color: '#334155' }}>ID Transaksi</TableCell>
+                <TableCell sx={{ fontWeight: '700', color: '#334155' }}>Jumlah (RM)</TableCell>
+                <TableCell sx={{ fontWeight: '700', color: '#334155' }}>Status</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {filteredTransactions.length > 0 ? (
+                filteredTransactions.map((txn, index) => (
+                  <TableRow key={index} hover>
+                    <TableCell>{new Date(txn.created_at).toLocaleDateString("en-GB")}</TableCell>
+                    <TableCell sx={{ color: '#64748b', fontSize: '0.9rem' }}>{txn.id}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold' }}>RM {parseFloat(txn.amount).toFixed(2)}</TableCell>
+                    <TableCell>
+                      <Chip 
+                        label={txn.action === 'pending' ? 'Dalam Proses' : 'Selesai'} 
+                        color={txn.action === 'pending' ? 'warning' : 'success'} 
+                        size="small"
+                        sx={{ fontWeight: '600' }}
+                      />
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell colSpan={4} align="center" sx={{ py: 4, color: '#64748b' }}>
+                    Tiada transaksi dijumpai.
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+      </Container>
+    </Box>
+  );
 }
 
 export default Bonus;
-

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
-import "../style/AdminLogin.css";
-import { Link, useNavigate } from 'react-router-dom';
+import { Link as RouterLink, useNavigate } from 'react-router-dom';
 import supabase from "../config/supabaseClient"; // Import Supabase
+import { Box, Button, TextField, Typography, Container, Paper, Link } from '@mui/material';
 
 function Login() {
   const navigate = useNavigate();
@@ -72,7 +72,7 @@ function Login() {
     }
   };
 
-  const levelBonuses = [0, 30, 5, 5, 3, 2, 2, 2, 2, 1, 1, 1, 0.5, 0.5, 0.5, 0.5];
+  const levelBonuses = [0, 20, 5, 2, 2, 2, 2, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5];
 
   const updateBonus = async (user, level, downlineCount) => {
     const currentBonusCount = user.bonus_count || {};
@@ -128,33 +128,66 @@ function Login() {
 
 
   return (
-    <div className="login-container">
-      <div className="form-container">
-        <h2>Sila isi butiran akaun anda</h2>
-        <form onSubmit={handleSubmit}>
-          <input
-            type="text"
-            name="username"
-            placeholder="Nama Pengguna / Username"
-            value={formData.username}
-            onChange={handleChange}
-            required
-          />
-          <input
-            type="password"
-            name="password"
-            placeholder="Password"
-            value={formData.password}
-            onChange={handleChange}
-            required
-          />
-          <button type="submit">Log Masuk</button>
-        </form>
-        <p>
-          <Link to="/SignUp" className="daftarmasuk">Tiada akaun? Daftar Sekarang</Link>
-        </p>
-      </div>
-    </div>
+    <Box sx={{
+      minHeight: '100vh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)', // Sleek dark slate gradient
+      padding: 2
+    }}>
+      <Container maxWidth="xs">
+        <Paper elevation={24} sx={{ p: 4, borderRadius: 4, textAlign: 'center', backdropFilter: 'blur(10px)', backgroundColor: 'rgba(255, 255, 255, 0.95)' }}>
+          <Box mb={3}>
+            <img src="/assets/Logo.png" alt="Logo" style={{ maxWidth: '120px', marginBottom: '10px' }} onError={(e) => e.target.style.display = 'none'} />
+            <Typography variant="h5" fontWeight="800" color="primary.dark">
+              Log Masuk Akaun
+            </Typography>
+            <Typography variant="body2" color="text.secondary" sx={{ mt: 1 }}>
+              Sila isi butiran akaun anda untuk meneruskan
+            </Typography>
+          </Box>
+          
+          <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2.5 }}>
+            <TextField
+              label="Nama Pengguna"
+              name="username"
+              variant="outlined"
+              fullWidth
+              value={formData.username}
+              onChange={handleChange}
+              required
+            />
+            <TextField
+              label="Kata Laluan"
+              name="password"
+              type="password"
+              variant="outlined"
+              fullWidth
+              value={formData.password}
+              onChange={handleChange}
+              required
+            />
+            <Button 
+              type="submit" 
+              variant="contained" 
+              size="large" 
+              fullWidth
+              sx={{ py: 1.5, borderRadius: 2, fontWeight: 'bold', fontSize: '1.1rem', textTransform: 'none', background: 'linear-gradient(90deg, #2563eb 0%, #4f46e5 100%)' }}
+            >
+              Log Masuk
+            </Button>
+          </Box>
+          
+          <Typography variant="body2" sx={{ mt: 3 }}>
+            Tiada akaun?{' '}
+            <Link component={RouterLink} to="/SignUp" underline="hover" fontWeight="bold" color="primary.main">
+              Daftar Sekarang
+            </Link>
+          </Typography>
+        </Paper>
+      </Container>
+    </Box>
   );
 }
 

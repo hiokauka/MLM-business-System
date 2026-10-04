@@ -2,10 +2,14 @@ import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import supabase from "../config/supabaseClient";
-import "../style/rangkaian.css";
 import DrawerComponent from "./DrawerComponent";
 import MenuIcon from "@mui/icons-material/Menu";
-
+import { 
+  Box, Container, Typography, Card, CardContent, 
+  Select, MenuItem, FormControl, InputLabel,
+  Table, TableBody, TableCell, TableContainer, TableHead, TableRow, Paper
+} from "@mui/material";
+import AccountTreeIcon from '@mui/icons-material/AccountTree';
 
 function Rangkaian() {
   const location = useLocation();
@@ -15,18 +19,13 @@ function Rangkaian() {
   const [totalBonus, setTotalBonus] = useState(0);
   const [openDrawer, setOpenDrawer] = useState(false);
 
-  const toggleDrawer = (open) => {
-    setOpenDrawer(open);  // This will open or close the drawer
-  };
-
+  const toggleDrawer = (open) => setOpenDrawer(open);
 
   const levelRequirements = [0, 1, 2, 2, 3, 3, 4, 4, 5, 5, 6, 6, 7, 7, 8];
-
-  const levelBonuses = [0, 30, 5, 5, 3, 2, 2, 2, 2, 1, 1, 1, 0.5, 0.5, 0.5, 0.5];
+  const levelBonuses = [0, 20, 5, 2, 2, 2, 2, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5, 0.5];
 
   const handleLogout = () => {
-    const confirmLogout = window.confirm("Anda pasti ingin log keluar?");
-    if (confirmLogout) {
+    if (window.confirm("Anda pasti ingin log keluar?")) {
       localStorage.removeItem("userSession");
       localStorage.removeItem("loggedInUser");
       window.location.href = "/login";
@@ -35,7 +34,6 @@ function Rangkaian() {
 
   const updateBonus = async (user, level, downlineCount) => {
     const currentBonusCount = user.bonus_count || {};
-
     const previousCount = currentBonusCount[`level_${level}`] || 0;
 
     if (downlineCount > previousCount) {
@@ -59,20 +57,13 @@ function Rangkaian() {
     if (!loggedInUser) return;
 
     let currentLevelPins = [];
-
-    const startTime = Date.now();
-
     const { data: user, error: userError } = await supabase
       .from("users")
       .select("pin, name, total_bonus, bonus_count")
       .eq("username", loggedInUser)
       .single();
 
-    if (userError || !user) {
-      console.error("Error fetching user pin:", userError);
-      return;
-    }
-
+    if (userError || !user) return;
     currentLevelPins = [user.pin];
 
     const { data: sponsoredUsers, error: sponsorError } = await supabase
@@ -91,7 +82,6 @@ function Rangkaian() {
     }
 
     let downline = [];
-
     for (let i = 0; i < level; i++) {
       const { data, error } = await supabase
         .from("users")
@@ -99,28 +89,17 @@ function Rangkaian() {
         .in("referral_pin", currentLevelPins);
 
       if (error || !data || data.length === 0) {
-        // If no data is found for the level, reset the downline and exit
         setUserNetwork([]);
         setTotalBonus(0);
         return;
       }
-
-
       downline = data;
-
       if (i === level - 1) {
         updateBonus(user, level, downline.length);
-
-        setUserNetwork(downline.map(user => ({ ...user, bonus: levelBonuses[level] })));
+        setUserNetwork(downline.map(u => ({ ...u, bonus: levelBonuses[level] })));
       }
-
-
-      currentLevelPins = downline.map((user) => user.pin);
+      currentLevelPins = downline.map((u) => u.pin);
     }
-
-    const endTime = Date.now(); // End time for query
-    const duration = endTime - startTime; // Duration of the query
-    console.log(`Query took: ${duration} milliseconds`);
   };
 
   useEffect(() => {
@@ -128,103 +107,113 @@ function Rangkaian() {
   }, [selectedLevel, sponsoredCount]);
 
   return (
-    <div>
-      <header className="header">
-        <img src="/assets/Logo.png" className="logo" />
-
-        {/* Hamburger Menu for Small Screens */}
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#f8fafc', pb: 10 }}>
+      {/* Header / Navbar */}
+      <header className="header" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.05)', borderBottom: 'none' }}>
+        <img src="/assets/Logo.png" className="logo" alt="Logo" />
         <MenuIcon
           className="hamburger"
-          onClick={() => toggleDrawer(true)}  // Open the drawer when the icon is clicked
-          style={{ fontSize: 30, cursor: 'pointer', display: 'none' }} // Initially hidden on larger screens
+          onClick={() => toggleDrawer(true)}
+          style={{ fontSize: 30, cursor: 'pointer', display: 'none' }}
         />
-
         <nav className="navbar">
           <ul>
-            <li>
-              <Link to="/home" className={location.pathname === "/home" ? "active" : ""}>
-                Utama
-              </Link>
-            </li>
-            <li>
-              <Link to="/bonus" className={location.pathname === "/bonus" ? "active" : ""}>
-                Bonus
-              </Link>
-            </li>
-            <li>
-              <Link to="/rangkaian" className={location.pathname === "/rangkaian" ? "active" : ""}>
-                Rangkaian anda
-              </Link>
-            </li>
-            <li>
-              <Link to="/settings" className={location.pathname === "/settings" ? "active" : ""}>
-                Tetapan
-              </Link>
-            </li>
-            <li>
-              <Link to="/contact" className={location.pathname === "/contact" ? "active" : ""}>
-                Hubungi kami
-              </Link>
-            </li>
+            <li><Link to="/home" className={location.pathname === "/home" ? "active" : ""}>Utama</Link></li>
+            <li><Link to="/bonus" className={location.pathname === "/bonus" ? "active" : ""}>Bonus</Link></li>
+            <li><Link to="/rangkaian" className={location.pathname === "/rangkaian" ? "active" : ""}>Rangkaian anda</Link></li>
+            <li><Link to="/settings" className={location.pathname === "/settings" ? "active" : ""}>Tetapan</Link></li>
+            <li><Link to="/contact" className={location.pathname === "/contact" ? "active" : ""}>Hubungi kami</Link></li>
             <li>
               <button onClick={handleLogout} className="logout-btn">
                 <LogoutIcon />
               </button>
-
             </li>
-
           </ul>
         </nav>
       </header>
 
       <DrawerComponent openDrawer={openDrawer} toggleDrawer={toggleDrawer} handleLogout={handleLogout} />
 
+      <Container maxWidth="lg" sx={{ paddingTop: '100px' }}>
+        
+        <Box sx={{ display: 'flex', alignItems: 'center', mb: 4, gap: 2 }}>
+          <AccountTreeIcon sx={{ fontSize: 40, color: '#2563eb' }} />
+          <Typography variant="h4" fontWeight="800" color="#0f172a">
+            Rangkaian Anda
+          </Typography>
+        </Box>
 
-      <div className="container">
-        <label htmlFor="level">Pilih Level Downline:</label>
-        <select id="level" value={selectedLevel} onChange={(e) => setSelectedLevel(Number(e.target.value))}>
-          {[...Array(15).keys()].map((level) => (
-            <option key={level + 1} value={level + 1}>Level {level + 1}</option>
-          ))}
-        </select>
-      </div>
+        <Card sx={{ borderRadius: '20px', boxShadow: '0 10px 40px rgba(0,0,0,0.04)', mb: 6, p: 2 }}>
+          <CardContent>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 3, flexWrap: 'wrap' }}>
+              <Typography variant="h6" color="#334155" fontWeight="600">
+                Pilih Level Downline:
+              </Typography>
+              <FormControl sx={{ minWidth: 200 }}>
+                <InputLabel>Level</InputLabel>
+                <Select
+                  value={selectedLevel}
+                  label="Level"
+                  onChange={(e) => setSelectedLevel(Number(e.target.value))}
+                  sx={{ borderRadius: '10px' }}
+                >
+                  {[...Array(15).keys()].map((level) => (
+                    <MenuItem key={level + 1} value={level + 1}>
+                      Level {level + 1}
+                    </MenuItem>
+                  ))}
+                </Select>
+              </FormControl>
+              
+              <Box sx={{ ml: 'auto' }}>
+                <Typography variant="body2" color="#64748b">Tajaan Terus (Level 1):</Typography>
+                <Typography variant="h6" fontWeight="700" color="#0f172a">{sponsoredCount} Ahli</Typography>
+              </Box>
+            </Box>
+          </CardContent>
+        </Card>
 
-      <div className="tablecard">
-        <div className="tablecontainer">
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Username</th>
-                <th>Phone</th>
-                <th>Date Joined</th>
-                <th>Bonus (RM)</th>
-              </tr>
-            </thead>
-            <tbody>
+        {/* Downline Table */}
+        <TableContainer component={Paper} sx={{ borderRadius: '16px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }}>
+          <Table>
+            <TableHead sx={{ backgroundColor: '#f1f5f9' }}>
+              <TableRow>
+                <TableCell sx={{ fontWeight: '700', color: '#334155' }}>Nama</TableCell>
+                <TableCell sx={{ fontWeight: '700', color: '#334155' }}>Username</TableCell>
+                <TableCell sx={{ fontWeight: '700', color: '#334155' }}>Nombor Telefon</TableCell>
+                <TableCell sx={{ fontWeight: '700', color: '#334155' }}>Tarikh Sertai</TableCell>
+                <TableCell sx={{ fontWeight: '700', color: '#334155' }}>Bonus Dijana (RM)</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
               {userNetwork.length === 0 ? (
-                <tr>
-                  <td colSpan="4" style={{ textAlign: "center" }}>
-                    No downline found
-                  </td>
-                </tr>
+                <TableRow>
+                  <TableCell colSpan={5} align="center" sx={{ py: 6 }}>
+                    <Typography variant="h6" color="#94a3b8" gutterBottom>Tiada Rekod Downline</Typography>
+                    {sponsoredCount < levelRequirements[selectedLevel] && (
+                      <Typography variant="body2" color="error">
+                        Syarat tajaan tidak mencukupi untuk membuka Level {selectedLevel}. Anda perlu menaja sekurang-kurangnya {levelRequirements[selectedLevel]} ahli secara terus.
+                      </Typography>
+                    )}
+                  </TableCell>
+                </TableRow>
               ) : (
                 userNetwork.map((user, index) => (
-                  <tr key={index}>
-                    <td>{user.name}</td>
-                    <td>{user.username}</td>
-                    <td>{user.phone}</td>
-                    <td>{new Date(user.created_at).toLocaleDateString()}</td>
-                    <td>{user.bonus}</td>
-                  </tr>
+                  <TableRow key={index} hover>
+                    <TableCell sx={{ fontWeight: '600', color: '#0f172a' }}>{user.name}</TableCell>
+                    <TableCell sx={{ color: '#64748b' }}>@{user.username}</TableCell>
+                    <TableCell sx={{ color: '#64748b' }}>{user.phone}</TableCell>
+                    <TableCell sx={{ color: '#64748b' }}>{new Date(user.created_at).toLocaleDateString("en-GB")}</TableCell>
+                    <TableCell sx={{ fontWeight: 'bold', color: '#10b981' }}>RM {user.bonus.toFixed(2)}</TableCell>
+                  </TableRow>
                 ))
               )}
-            </tbody>
-          </table>
-        </div>
+            </TableBody>
+          </Table>
+        </TableContainer>
 
-      </div>
-    </div>
+      </Container>
+    </Box>
   );
 }
 

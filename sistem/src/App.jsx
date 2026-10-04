@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { CssBaseline } from "@mui/material";
 import LandingPage from "./component/LandingPage.jsx";
 import Login from "./component/Login.jsx";
 import SignUpPage from "./component/SignUpPage.jsx";
@@ -19,6 +20,7 @@ import Settings from "./component/Settings.jsx";
 function App() {
   return (
     <Router>
+      <CssBaseline />
      <Routes>
      <Route path="/" element={<Navigate to="/login" replace />} />
         <Route path="/login" element={<Login />} />

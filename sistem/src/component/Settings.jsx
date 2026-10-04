@@ -1,27 +1,29 @@
 import React, { useState, useEffect } from "react";
-import "../style/Settings.css";  // Ensure you have a CSS file
 import { Link, useLocation } from "react-router-dom";
 import LogoutIcon from "@mui/icons-material/Logout";
 import DrawerComponent from "./DrawerComponent";
 import MenuIcon from "@mui/icons-material/Menu";
 import supabase from "../config/supabaseClient";
+import { 
+  Box, Container, Typography, Card, CardContent, 
+  TextField, Button, Grid, Avatar
+} from "@mui/material";
+import ManageAccountsIcon from '@mui/icons-material/ManageAccounts';
+import SaveIcon from '@mui/icons-material/Save';
 
 function Settings() {
   const location = useLocation();
   const [openDrawer, setOpenDrawer] = useState(false);
+  const [loading, setLoading] = useState(false);
+
+  const toggleDrawer = (open) => setOpenDrawer(open);
 
   const handleLogout = () => {
-    const confirmLogout = window.confirm("Anda pasti ingin log keluar?");
-    if (confirmLogout) {
-      console.log("User logged out");
+    if (window.confirm("Anda pasti ingin log keluar?")) {
       localStorage.removeItem("userSession");
       localStorage.removeItem("loggedInUser");
-      window.location.href = "/login"; // Redirect to login page
+      window.location.href = "/login";
     }
-  };
-
-  const toggleDrawer = (open) => {
-    setOpenDrawer(open);  // This will open or close the drawer
   };
 
   const [userData, setUserData] = useState({
@@ -32,42 +34,36 @@ function Settings() {
     phone: "",
     bankName: "",
     bankAccount: "",
-    oldPhone: "", // Store the old phone number here
+    oldPhone: "", 
   });
 
   useEffect(() => {
     const fetchUserData = async () => {
       const loggedInUser = localStorage.getItem("loggedInUser");
-
       if (!loggedInUser) {
-        alert("No user found, please log in.");
         window.location.href = "/login";
         return;
       }
 
       const { data, error } = await supabase
-        .from("users") // Your table name
+        .from("users")
         .select("username, name, ic, pin, phone, bank_name, bank_account")
         .eq("username", loggedInUser)
-        .single(); // Expecting only one result
+        .single();
 
-      if (error) {
-        console.error("Error fetching user data:", error);
-        alert("Failed to fetch user data.");
-      } else {
+      if (!error && data) {
         setUserData({
           username: data.username,
           name: data.name,
-          icNumber: data.ic,  // Correct field name from the response
-          pinNumber: data.pin,
-          phone: data.phone,
-          oldPhone: data.phone, // Set oldPhone to the current phone
-          bankName: data.bank_name,
-          bankAccount: data.bank_account,
+          icNumber: data.ic || "",  
+          pinNumber: data.pin || "",
+          phone: data.phone || "",
+          oldPhone: data.phone || "", 
+          bankName: data.bank_name || "",
+          bankAccount: data.bank_account || "",
         });
       }
     };
-
     fetchUserData();
   }, []);
 
@@ -76,18 +72,16 @@ function Settings() {
   };
 
   const handleSave = async () => {
+    setLoading(true);
     try {
-      // First, update the phone number in the 'pins' table
-      const { error: pinUpdateError } = await supabase
-        .from("pins")
-        .update({ phone: userData.phone }) // Update the phone in the 'pins' table
-        .eq("phone", userData.oldPhone); // Match the old phone number
-
-      if (pinUpdateError) {
-        throw pinUpdateError; // If there's an error in updating the pins, throw it
+      if (userData.phone !== userData.oldPhone) {
+        const { error: pinUpdateError } = await supabase
+          .from("pins")
+          .update({ phone: userData.phone }) 
+          .eq("phone", userData.oldPhone); 
+        if (pinUpdateError) throw pinUpdateError; 
       }
 
-      // Now, update the user data in the 'users' table
       const { error } = await supabase
         .from("users")
         .update({
@@ -98,21 +92,21 @@ function Settings() {
         })
         .eq("username", userData.username);
 
-      if (error) {
-        throw error; // Throw error if there's a problem updating the user data
-      }
+      if (error) throw error; 
 
-      alert("Maklumat berjaya dikemaskini!"); // Success message
+      setUserData(prev => ({ ...prev, oldPhone: userData.phone }));
+      alert("Maklumat berjaya dikemaskini!"); 
     } catch (error) {
       console.error("Error updating data:", error);
-      alert("Gagal kemaskini maklumat! Sila cuba lagi."); // Error message
+      alert("Gagal kemaskini maklumat! Sila cuba lagi."); 
     }
+    setLoading(false);
   };
 
   return (
-    <div>
-      <header className="header">
-        <img src="/assets/Logo.png" className="logo" />
+    <Box sx={{ minHeight: '100vh', backgroundColor: '#f8fafc', pb: 10 }}>
+      <header className="header" style={{ boxShadow: '0 4px 20px rgba(0,0,0,0.05)', borderBottom: 'none' }}>
+        <img src="/assets/Logo.png" className="logo" alt="Logo" />
         <MenuIcon
           className="hamburger"
           onClick={() => toggleDrawer(true)}
@@ -120,21 +114,11 @@ function Settings() {
         />
         <nav className="navbar">
           <ul>
-            <li>
-              <Link to="/home" className={location.pathname === "/home" ? "active" : ""}>Utama</Link>
-            </li>
-            <li>
-              <Link to="/bonus" className={location.pathname === "/bonus" ? "active" : ""}>Bonus</Link>
-            </li>
-            <li>
-              <Link to="/rangkaian" className={location.pathname === "/rangkaian" ? "active" : ""}>Rangkaian anda</Link>
-            </li>
-            <li>
-              <Link to="/settings" className={location.pathname === "/settings" ? "active" : ""}>Tetapan</Link>
-            </li>
-            <li>
-              <Link to="/contact" className={location.pathname === "/contact" ? "active" : ""}>Hubungi kami</Link>
-            </li>
+            <li><Link to="/home" className={location.pathname === "/home" ? "active" : ""}>Utama</Link></li>
+            <li><Link to="/bonus" className={location.pathname === "/bonus" ? "active" : ""}>Bonus</Link></li>
+            <li><Link to="/rangkaian" className={location.pathname === "/rangkaian" ? "active" : ""}>Rangkaian anda</Link></li>
+            <li><Link to="/settings" className={location.pathname === "/settings" ? "active" : ""}>Tetapan</Link></li>
+            <li><Link to="/contact" className={location.pathname === "/contact" ? "active" : ""}>Hubungi kami</Link></li>
             <li>
               <button onClick={handleLogout} className="logout-btn">
                 <LogoutIcon />
@@ -146,34 +130,81 @@ function Settings() {
 
       <DrawerComponent openDrawer={openDrawer} toggleDrawer={toggleDrawer} handleLogout={handleLogout} />
 
-      <div className="settings-container">
-        <h2>Tetapan</h2>
-        <form>
-          <label>Username</label>
-          <input type="text" name="username" value={userData.username} readOnly />
+      <Container maxWidth="md" sx={{ paddingTop: '100px' }}>
+        <Card sx={{ 
+          borderRadius: '20px', 
+          boxShadow: '0 10px 40px rgba(0,0,0,0.04)',
+          overflow: 'hidden'
+        }}>
+          <Box sx={{ 
+            background: 'linear-gradient(135deg, #0f172a 0%, #1e293b 100%)',
+            p: 4,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 3,
+            color: 'white'
+          }}>
+            <Avatar sx={{ width: 64, height: 64, bgcolor: '#38bdf8' }}>
+              <ManageAccountsIcon fontSize="large" />
+            </Avatar>
+            <Box>
+              <Typography variant="h4" fontWeight="800">Profil & Tetapan</Typography>
+              <Typography variant="subtitle1" sx={{ color: '#94a3b8' }}>
+                Kemaskini maklumat peribadi dan akaun bank anda
+              </Typography>
+            </Box>
+          </Box>
 
-          <label>Nama Penuh</label>
-          <input type="text" name="name" value={userData.name} readOnly />
+          <CardContent sx={{ p: 5 }}>
+            <Grid container spacing={3}>
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth label="Username" name="username" value={userData.username} InputProps={{ readOnly: true }} disabled />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth label="Nama Penuh" name="name" value={userData.name} InputProps={{ readOnly: true }} disabled />
+              </Grid>
+              
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth label="Nombor IC" name="icNumber" value={userData.icNumber} onChange={handleChange} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth label="Pin Keahlian" name="pinNumber" value={userData.pinNumber} InputProps={{ readOnly: true }} disabled />
+              </Grid>
 
-          <label>Nombor IC</label>
-          <input type="text" name="icNumber" value={userData.icNumber} onChange={handleChange} />
+              <Grid item xs={12}>
+                <TextField fullWidth label="Nombor Telefon" name="phone" value={userData.phone} onChange={handleChange} />
+              </Grid>
 
-          <label>Pin</label>
-          <input type="text" name="pinNumber" value={userData.pinNumber} readOnly />
-
-          <label>Nombor Telefon</label>
-          <input type="text" name="phone" value={userData.phone} readOnly />
-
-          <label>Nama Bank</label>
-          <input type="text" name="bankName" value={userData.bankName} onChange={handleChange} />
-
-          <label>Nombor Akaun Bank</label>
-          <input type="text" name="bankAccount" value={userData.bankAccount} onChange={handleChange} />
-
-          <button className="submitchange" type="button" onClick={handleSave}>Simpan perubahan</button>
-        </form>
-      </div>
-    </div>
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth label="Nama Bank" name="bankName" value={userData.bankName} onChange={handleChange} />
+              </Grid>
+              <Grid item xs={12} sm={6}>
+                <TextField fullWidth label="Nombor Akaun Bank" name="bankAccount" value={userData.bankAccount} onChange={handleChange} />
+              </Grid>
+              
+              <Grid item xs={12} sx={{ display: 'flex', justifyContent: 'flex-end', mt: 2 }}>
+                <Button 
+                  variant="contained" 
+                  size="large"
+                  onClick={handleSave}
+                  disabled={loading}
+                  startIcon={<SaveIcon />}
+                  sx={{ 
+                    backgroundColor: '#2563eb', 
+                    px: 4, py: 1.5,
+                    borderRadius: '8px',
+                    fontWeight: 'bold',
+                    '&:hover': { backgroundColor: '#1d4ed8' }
+                  }}
+                >
+                  {loading ? 'Menyimpan...' : 'Simpan Perubahan'}
+                </Button>
+              </Grid>
+            </Grid>
+          </CardContent>
+        </Card>
+      </Container>
+    </Box>
   );
 }
 
