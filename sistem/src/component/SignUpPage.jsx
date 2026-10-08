@@ -35,6 +35,11 @@ function SignUpPage() {
     }
 
 
+    if (formData.password.includes(" ")) {
+      alert("Kata laluan tidak boleh mengandungi ruang (space)!");
+      return;
+    }
+
     // 🛑 Validate passwords
     if (formData.password !== formData.confirmPassword) {
       alert("Kata laluan tidak sepadan!");
@@ -72,15 +77,16 @@ function SignUpPage() {
       }
 
       // ✅ Check referral pin (optional)
-      if (formData.referral) {
-        const { data: referrer } = await supabase
+      const referralPin = formData.referral.trim();
+      if (referralPin) {
+        const { data: referrer, error: refError } = await supabase
           .from("users")
           .select("id")
-          .eq("pin", formData.referral)
+          .eq("pin", referralPin)
           .single();
 
-        if (!referrer) {
-          alert("PIN Referral tidak sah!");
+        if (refError || !referrer) {
+          alert("PIN Referral tidak sah! Pastikan PIN Referral adalah dari pengguna yang sudah mendaftar (upline), atau biarkan kosong jika tiada.");
           return;
         }
       }
@@ -97,21 +103,19 @@ function SignUpPage() {
           bank_account: formData.bank_account,
           bank_name: formData.bank_name,
           pin: formData.pin,
-          referral_pin: formData.referral || null,
+          referral_pin: referralPin || null,
+          role: "user",
+          total_bonus: 0,
+          bonus_count: {},
         },
       ]);
 
       if (userError) throw userError;
 
-      // ✅ Update PIN status to 'used'
-      await supabase.from("pins").update({ status: "used" }).eq("pin", formData.pin);
-
-      
-
-      // ✅ Update PIN with the user's phone number
+      // ✅ Update PIN status to 'used' and set user's phone number
       await supabase
         .from("pins")
-        .update({ phone: formData.phone })
+        .update({ status: "used", phone: formData.phone })
         .eq("pin", formData.pin);
 
       alert("Pendaftaran berjaya!");
@@ -146,7 +150,7 @@ function SignUpPage() {
           <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
-                <TextField label="Username" name="username" fullWidth value={formData.username} onChange={handleChange} required variant="outlined" />
+                <TextField label="Username" name="username" fullWidth value={formData.username} onChange={handleChange} required variant="outlined" helperText="Tiada jarak (space), guna nama mudah. Contoh: aisyah" FormHelperTextProps={{ sx: { color: 'error.main', fontWeight: 'bold' } }} />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField label="Nama Penuh" name="name" fullWidth value={formData.name} onChange={handleChange} required variant="outlined" />
@@ -161,7 +165,7 @@ function SignUpPage() {
                 <TextField label="Nombor Telefon" name="phone" type="tel" fullWidth value={formData.phone} onChange={handleChange} required variant="outlined" />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField label="Kata Laluan" name="password" type="password" fullWidth value={formData.password} onChange={handleChange} required variant="outlined" />
+                <TextField label="Kata Laluan" name="password" type="password" fullWidth value={formData.password} onChange={handleChange} required variant="outlined" helperText="Tiada jarak (space). Contoh: aisyah123" FormHelperTextProps={{ sx: { color: 'error.main', fontWeight: 'bold' } }} />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField label="Pengesahan Kata Laluan" name="confirmPassword" type="password" fullWidth value={formData.confirmPassword} onChange={handleChange} required variant="outlined" />
