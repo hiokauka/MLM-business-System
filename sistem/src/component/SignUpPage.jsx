@@ -29,8 +29,8 @@ function SignUpPage() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (formData.username.includes(" ")) {
-      alert("Username tidak boleh mengandungi ruang! Contoh username  : harisi1982 , rogayah21 , aisyah");
+    if (formData.username.includes(" ") || /[A-Z]/.test(formData.username)) {
+      alert("Username mesti huruf kecil sahaja dan tiada ruang (space)! Contoh: aisyah");
       return;
     }
 
@@ -150,7 +150,7 @@ function SignUpPage() {
           <Box component="form" onSubmit={handleSubmit} sx={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
             <Grid container spacing={2}>
               <Grid item xs={12} sm={6}>
-                <TextField label="Username" name="username" fullWidth value={formData.username} onChange={handleChange} required variant="outlined" helperText="Tiada jarak (space), guna nama mudah. Contoh: aisyah" FormHelperTextProps={{ sx: { color: 'error.main', fontWeight: 'bold' } }} />
+                <TextField label="Username" name="username" fullWidth value={formData.username} onChange={handleChange} required variant="outlined" helperText="Huruf kecil sahaja & tiada jarak. Contoh: aisyah" FormHelperTextProps={{ sx: { color: 'error.main', fontWeight: 'bold' } }} />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField label="Nama Penuh" name="name" fullWidth value={formData.name} onChange={handleChange} required variant="outlined" />
