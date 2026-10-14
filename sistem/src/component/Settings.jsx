@@ -85,6 +85,7 @@ function Settings() {
       const { error } = await supabase
         .from("users")
         .update({
+          name: userData.name,
           phone: userData.phone,
           bank_name: userData.bankName,
           bank_account: userData.bankAccount,
@@ -161,7 +162,7 @@ function Settings() {
                 <TextField fullWidth label="Username" name="username" value={userData.username} InputProps={{ readOnly: true }} disabled />
               </Grid>
               <Grid item xs={12} sm={6}>
-                <TextField fullWidth label="Nama Penuh" name="name" value={userData.name} InputProps={{ readOnly: true }} disabled />
+                <TextField fullWidth label="Nama Penuh" name="name" value={userData.name} onChange={handleChange} />
               </Grid>
               
               <Grid item xs={12} sm={6}>
